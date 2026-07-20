@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laguna PD</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root {
+  --bg: #0f1115;
+  --card: #1a1d24;
+  --border: #2a2e38;
+  --text: #e4e6eb;
+  --muted: #8b8f9a;
+  --accent: #d4922a;
+  --accent2: #ffb84d;
+  --danger: #ff6b6b;
+}
+* { box-sizing: border-box; }
+body {
+  position: relative;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 16px;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('officers.webp');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  opacity: 0.13;
+  z-index: -1;
+  pointer-events: none;
+}
+h1 {
+  font-size: 1.3rem;
+  margin: 0 0 12px 0;
+  color: var(--accent);
+  text-align: center;
+}
+.search-box {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+.search-box:focus { outline: none; border-color: var(--accent); }
+.macro-help-btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.72rem;
+  padding: 5px 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.macro-help-btn:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+.macro-help-panel {
+  margin-bottom: 14px;
+}
+.macro-help-panel.hidden { display: none; }
+.macro-help-frame-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.macro-help-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.tab {
+  position: relative;
+  overflow: hidden;
+  padding: 5px 12px;
+  border-radius: 0;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.25s, background 0.25s, box-shadow 0.25s, letter-spacing 0.25s;
+}
+.tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,184,79,0.35), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.tab:hover::before {
+  left: 140%;
+  transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tab:hover {
+  color: #ffcf80;
+  background: #26210f;
+  letter-spacing: 0.03em;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,184,79,0.5),
+    inset 0 0 14px rgba(255,184,79,0.25),
+    0 0 8px rgba(255,184,79,0.3);
+}
+.tab.active {
+  background: var(--accent2);
+  color: #0f1115;
+  border-color: var(--accent2);
+  font-weight: 600;
+}
+.count {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+.category-title {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 18px 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.category-title.pd { color: var(--accent2); }
+.sub-title {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 10px 0 6px 0;
+}
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+@media (min-width: 1401px) {
+  .rules-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .rules-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  body { padding: 10px; }
+  h1 { font-size: 1.05rem; }
+  .tab { font-size: 0.7rem; padding: 4px 10px; }
+  .rule-title { font-size: 0.8rem; }
+  .rule-desc, .rule-punish { font-size: 0.72rem; }
+  .nav-btn { font-size: 0.72rem; padding: 8px 10px; }
+}
+.rule {
+  position: relative;
+  overflow: hidden;
+  background: rgba(26, 29, 36, 0.55);
+  backdrop-filter: blur(3px);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.rule::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,184,79,0.25), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.rule:hover::before {
+  left: 140%;
+  transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rule:hover {
+  background: rgba(38, 33, 15, 0.75);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,184,79,0.4),
+    inset 0 0 14px rgba(255,184,79,0.2),
+    0 0 8px rgba(255,184,79,0.25);
+}
+.rule-desc {
+  font-size: 0.78rem;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rule-punish {
+  font-size: 0.74rem;
+  color: var(--danger);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rule.expanded .rule-desc,
+.rule.expanded .rule-punish {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+.expand-hint {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+.macro-label {
+  font-weight: 700;
+  color: var(--accent2);
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+.macro-text {
+  font-size: 0.76rem;
+  color: var(--text);
+  line-height: 1.4;
+  font-family: 'Courier New', monospace;
+}
+.macro-rule.copied {
+  background: #1e3a2e;
+  border-color: #3ea86b;
+}
+.pd-banner {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  width: 100vw;
+  margin: -16px 0 0 calc(-50vw + 50%);
+  padding: 14px 10px;
+  min-height: 130px;
+  background: var(--bg);
+}
+.pd-banner-left {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.pd-banner-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 65%;
+  object-fit: cover;
+  object-position: right 40%;
+  z-index: 0;
+  pointer-events: none;
+}
+@media (max-width: 700px) {
+  .pd-banner-photo {
+    width: 60%;
+    opacity: 0.55;
+    object-position: right center;
+    mask-image: linear-gradient(to right, transparent, black 55%);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 55%);
+  }
+}
+.pd-banner-left img {
+  height: 100px;
+  width: 100px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.pd-banner-text {
+  font-family: 'Bebas Neue', -apple-system, sans-serif;
+  line-height: 0.95;
+  text-align: left;
+}
+.pd-banner-text .line1 {
+  font-size: 2.2rem;
+  color: #e4e6eb;
+  letter-spacing: 0.04em;
+}
+.pd-banner-text .line2 {
+  font-size: 3.2rem;
+  color: #ffb84d;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Macros de Instrucción bloqueadas ---- */
+.macro-locked-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid rgba(255,184,79,0.35);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  padding: 18px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.macro-locked-title {
+  font-weight: 700;
+  color: var(--accent2);
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+.macro-locked-sub {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 12px;
+}
+.macro-locked-btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  background: #22252e;
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  padding: 8px 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.macro-locked-btn:hover {
+  background: var(--accent2);
+  color: #0f1115;
+}
+
+/* ---- Modal de código de instructor ---- */
+.instructor-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 500;
+}
+.instructor-modal-overlay.hidden { display: none; }
+.instructor-modal-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 22px;
+  width: 100%;
+  max-width: 320px;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+.instructor-modal-title {
+  font-weight: 700;
+  color: var(--accent2);
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.instructor-modal-sub {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.instructor-modal-box input {
+  width: 100%;
+  background: #12141a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 2px;
+}
+.instructor-modal-box input:focus {
+  outline: none;
+  border-color: var(--accent2);
+}
+.instructor-modal-error {
+  color: var(--danger, #ff6b6b);
+  font-size: 0.75rem;
+  text-align: center;
+  min-height: 16px;
+  margin-top: 8px;
+}
+.instructor-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.instructor-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  background: #22252e;
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.instructor-btn-primario {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #0f1115;
+  font-weight: 700;
+}
+.instructor-btn-primario:hover { filter: brightness(1.08); }
+.instructor-btn-secundario:hover { border-color: var(--accent2); color: var(--accent2); }
+
+@media (max-width: 700px) {
+  .pd-banner { gap: 12px; }
+  .pd-banner-left img { height: 70px; width: 70px; }
+  .pd-banner-text .line1 { font-size: 1.5rem; }
+  .pd-banner-text .line2 { font-size: 2.2rem; }
+}
+.pd-footer {
+  position: relative;
+  margin-top: 30px;
+  padding: 20px 10px 16px 10px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  z-index: 1;
+}
+.siren-strip {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  height: 3px;
+  background: linear-gradient(90deg, #ff4444, transparent 15%, transparent 85%, #4d7fff);
+  animation: sirenSweep 2.4s linear infinite;
+}
+@keyframes sirenSweep {
+  0%   { background: linear-gradient(90deg, #ff4444, transparent 20%, transparent 80%, #4d7fff); }
+  50%  { background: linear-gradient(90deg, #4d7fff, transparent 20%, transparent 80%, #ff4444); }
+  100% { background: linear-gradient(90deg, #ff4444, transparent 20%, transparent 80%, #4d7fff); }
+}
+.siren-glow-left, .siren-glow-right {
+  position: absolute;
+  bottom: 0;
+  width: 220px;
+  height: 140px;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(30px);
+  opacity: 0.35;
+}
+.siren-glow-left {
+  left: 0;
+  background: radial-gradient(circle at bottom left, #ff4444, transparent 70%);
+  animation: sirenPulseLeft 1.2s ease-in-out infinite;
+}
+.siren-glow-right {
+  right: 0;
+  background: radial-gradient(circle at bottom right, #4d7fff, transparent 70%);
+  animation: sirenPulseRight 1.2s ease-in-out infinite;
+}
+@keyframes sirenPulseLeft {
+  0%, 49% { opacity: 0.4; }
+  50%, 100% { opacity: 0.08; }
+}
+@keyframes sirenPulseRight {
+  0%, 49% { opacity: 0.08; }
+  50%, 100% { opacity: 0.4; }
+}
+.rule-header {
+  margin-bottom: 4px;
+}
+.rule-header .code {
+  margin-right: 6px;
+}
+.code {
+  font-weight: 700;
+  color: var(--accent2);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.rule-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.rule-punish b { color: var(--danger); }
+.hidden { display: none; }
+.empty-msg {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px;
+  font-size: 0.9rem;
+}
+
+/* --- Navegación principal por secciones --- */
+.main-nav {
+  display: flex;
+  width: 100vw;
+  margin: 0 0 18px calc(-50vw + 50%);
+}
+.nav-btn {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 0;
+  border: 1px solid var(--border);
+  border-top: none;
+  margin-left: -1px;
+  background: #22252e;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.25s, background 0.25s, box-shadow 0.25s, letter-spacing 0.25s;
+}
+.nav-btn:first-child {
+  margin-left: 0;
+}
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,184,79,0.35), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.nav-btn:hover::before {
+  left: 140%;
+  transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-btn:hover {
+  color: #ffcf80;
+  background: #26210f;
+  letter-spacing: 0.12em;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,184,79,0.5),
+    inset 0 0 18px rgba(255,184,79,0.25),
+    0 0 10px rgba(255,184,79,0.35);
+}
+.nav-btn.active {
+  background: var(--accent2);
+  color: #0f1115;
+  border-color: var(--accent2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.3),
+    inset 0 0 14px rgba(255,255,255,0.15),
+    0 0 10px rgba(255,184,79,0.5);
+}
+.nav-btn.active::before {
+  left: 140%;
+  transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-section { display: none; }
+.app-section.active { display: block; }
+
+.tz-back-btn {
+  display: block;
+  margin: 0 auto 10px auto;
+  background: #22252e;
+  border: 1px solid #2a2e38;
+  color: #e4e6eb;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.tz-iframe {
+  width: 100%;
+  height: 80vh;
+  border: 1px solid #2a2e38;
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background: var(--bg);
+}
+.pd-banner-glow-tr, .pd-banner-glow-br {
+  position: absolute;
+  right: 0;
+  width: 200px;
+  height: 110px;
+  pointer-events: none;
+  z-index: 1;
+  filter: blur(28px);
+  opacity: 0.35;
+}
+.pd-banner-glow-tr {
+  top: 0;
+  background: radial-gradient(circle at top right, #ff4444, transparent 70%);
+  animation: sirenPulseLeft 1.2s ease-in-out infinite;
+}
+.pd-banner-glow-br {
+  bottom: 0;
+  background: radial-gradient(circle at bottom right, #4d7fff, transparent 70%);
+  animation: sirenPulseRight 1.2s ease-in-out infinite;
+}
+.academia-placeholder {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  color: var(--muted);
+  padding: 60px 20px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  min-height: 320px;
+  background: var(--bg);
+}
+.academia-placeholder-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.13;
+  pointer-events: none;
+  z-index: 0;
+}
+.academia-placeholder-text {
+  position: relative;
+  z-index: 1;
+}
+.academia-schedule {
+  position: relative;
+  z-index: 1;
+  text-align: left;
+}
+.academia-schedule-title {
+  font-size: 1.05rem;
+  color: var(--accent2);
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 4px 0;
+}
+.academia-schedule-subtitle {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+  margin: 0 0 16px 0;
+}
+.turno-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.turno-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(26, 29, 36, 0.55);
+  backdrop-filter: blur(3px);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.turno-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,184,79,0.25), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.turno-card:hover::before {
+  left: 140%;
+  transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.turno-card:hover {
+  background: rgba(38, 33, 15, 0.65);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,184,79,0.4),
+    inset 0 0 14px rgba(255,184,79,0.2),
+    0 0 8px rgba(255,184,79,0.25);
+}
+.turno-time {
+  font-weight: 700;
+  color: var(--accent2);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+.turno-row {
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+.turno-row b {
+  color: var(--muted);
+  font-weight: 600;
+}
+.turno-row.turno-days {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255,184,79,0.25);
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.recruit-card {
+  border-color: rgba(77, 127, 255, 0.5);
+}
+.recruit-card .turno-time {
+  color: #7ea6ff;
+}
+.attendance-card {
+  border-color: rgba(74, 222, 128, 0.5);
+}
+.attendance-card .turno-time {
+  color: #4ade80;
+}
+.attendance-card:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(74,222,128,0.5),
+    inset 0 0 14px rgba(74,222,128,0.15),
+    0 0 8px rgba(74,222,128,0.25);
+}
+.evaluaciones-card {
+  border-color: rgba(167, 139, 250, 0.5);
+}
+.evaluaciones-card .turno-time {
+  color: #a78bfa;
+}
+.evaluaciones-card:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(167,139,250,0.5),
+    inset 0 0 14px rgba(167,139,250,0.15),
+    0 0 8px rgba(167,139,250,0.25);
+}
+.temario-card {
+  border-color: rgba(139, 143, 154, 0.4);
+  border-style: dashed;
+}
+.temario-card .turno-time {
+  color: var(--muted);
+}
+.academia-two-col {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+.academia-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.roster-card {
+  background: rgba(26, 29, 36, 0.55);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255,184,79,0.35);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  padding: 16px 18px;
+  height: 100%;
+}
+.roster-title {
+  font-family: 'Bebas Neue', -apple-system, sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.03em;
+  color: var(--accent2);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.roster-group { margin-bottom: 11px; }
+.roster-group:last-child { margin-bottom: 0; }
+.roster-role {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.roster-names {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  .academia-two-col { grid-template-columns: 1fr; }
+}
+.attendance-frame {
+  min-height: 320px;
+  padding: 0;
+}
+.attendance-iframe {
+  display: block;
+  width: 100%;
+  height: 840px; /* fallback inicial hasta que llegue el primer postMessage con la altura real */
+  border: none;
+  background: #0f1115;
+  transition: height 0.15s ease;
+}
+.evaluaciones-iframe {
+  display: block;
+  width: 100%;
+  height: 840px; /* fallback inicial hasta que llegue el primer postMessage con la altura real */
+  border: none;
+  background: #0f1115;
+  transition: height 0.15s ease;
+}
+.evaluaciones-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 10px 0 4px;
+}
+.eval-tab {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.eval-tab.active {
+  border-color: var(--accent);
+  color: var(--accent2);
+  background: #2a2416;
+}
+.eval-tab:hover { color: var(--text); }
+.recruit-card:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(77,127,255,0.5),
+    inset 0 0 14px rgba(77,127,255,0.2),
+    0 0 8px rgba(77,127,255,0.3);
+}
+.map-trigger {
+  color: var(--accent2);
+  font-weight: 700;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.map-trigger:hover {
+  color: #ffcf80;
+}
+.academia-updated {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* --- Visor de mapa (Piso 2) estilo HUD --- */
+.academia-map {
+  display: none;
+  position: relative;
+  z-index: 2;
+}
+.academia-map.active {
+  display: block;
+}
+.map-back-btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 6px 16px;
+  background: rgba(26, 29, 36, 0.75);
+  border: 1px solid var(--accent2);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  color: var(--accent2);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.map-back-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,184,79,0.35), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.map-back-btn:hover::before {
+  left: 140%;
+  transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.map-back-btn:hover {
+  color: #ffcf80;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,184,79,0.5),
+    inset 0 0 14px rgba(255,184,79,0.2),
+    0 0 8px rgba(255,184,79,0.3);
+}
+.map-frame {
+  position: relative;
+  overflow: hidden;
+  background: rgba(5, 7, 10, 0.35);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255,184,79,0.5);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.4),
+    inset 0 0 40px rgba(255,184,79,0.06);
+}
+.map-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.08) 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+.map-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0.85;
+  filter: saturate(0.85) contrast(1.05);
+}
+.map-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  z-index: 2;
+  pointer-events: none;
+}
+.map-corner-tl { top: 8px; left: 8px; border-top: 2px solid var(--accent2); border-left: 2px solid var(--accent2); }
+.map-corner-tr { top: 8px; right: 8px; border-top: 2px solid var(--accent2); border-right: 2px solid var(--accent2); }
+.map-corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid var(--accent2); border-left: 2px solid var(--accent2); }
+.map-corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--accent2); border-right: 2px solid var(--accent2); }
+.map-hud-tag {
+  position: absolute;
+  top: 14px;
+  left: 42px;
+  z-index: 2;
+  background: rgba(5, 7, 10, 0.75);
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  padding: 4px 10px;
+}
+.map-marker-wrap {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  z-index: 2;
+  pointer-events: none;
+}
+.map-marker-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0) 78%);
+  z-index: -1;
+}
+.map-marker-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px dashed rgba(255, 184, 79, 0.9);
+  animation: mapRingSpin 5s linear infinite, mapRingPulse 1.8s ease-out infinite;
+}
+.map-marker-dot {
+  position: absolute;
+  inset: 17px;
+  border-radius: 50%;
+  background: var(--accent2);
+  box-shadow: 0 0 14px 3px rgba(255, 184, 79, 0.9);
+  animation: mapDotPulse 1.6s ease-in-out infinite;
+}
+@keyframes mapRingSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes mapRingPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,184,79,0.5); }
+  70%  { box-shadow: 0 0 0 20px rgba(255,184,79,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,184,79,0); }
+}
+@keyframes mapDotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.2); opacity: 0.8; }
+}
+.map-marker-label {
+  position: absolute;
+  transform: translate(-50%, -195%);
+  z-index: 3;
+  background: rgba(5, 7, 10, 0.45);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 184, 79, 0.85);
+  color: var(--accent2);
+  font-family: 'Courier New', monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 6px 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.map-pending {
+  padding: 70px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 700px) {
+  .map-hud-tag { left: 36px; font-size: 0.62rem; letter-spacing: 0.15em; }
+  .map-marker-label { font-size: 0.8rem; padding: 4px 10px; }
+  .map-marker-wrap { width: 42px; height: 42px; margin: -21px 0 0 -21px; }
+}
+</style>
+</head>
+<body>
+
+<div class="pd-banner">
+  <div class="pd-banner-left">
+    <img src="wspd_seal.png" alt="Sello WSPD">
+    <div class="pd-banner-text">
+      <div class="line1">Departamento de Policía</div>
+      <div class="line2">LAGUNA</div>
+    </div>
+  </div>
+  <img class="pd-banner-photo" src="wspd_banner.png" alt="Oficiales WSPD">
+  <div class="pd-banner-glow-tr"></div>
+  <div class="pd-banner-glow-br"></div>
+</div>
+
+<nav class="main-nav" id="mainNav">
+  <div class="nav-btn active" data-section="reglas">Reglas</div>
+  <div class="nav-btn" data-section="macros">Macros</div>
+  <div class="nav-btn" data-section="academia">Academia</div>
+  <div class="nav-btn" data-section="horario">Conversor de horario</div>
+</nav>
+
+<!-- ===================== SECCIÓN: REGLAS ===================== -->
+<section id="section-reglas" class="app-section active">
+  <input type="text" class="search-box" id="search" placeholder="Buscar código, palabra clave o castigo...">
+  <div class="tabs" id="tabs"></div>
+  <div class="count" id="count"></div>
+  <div id="container"></div>
+</section>
+
+<!-- ===================== SECCIÓN: MACROS ===================== -->
+<section id="section-macros" class="app-section">
+  <button class="macro-help-btn" id="btnComoAgregarMacros">¿Cómo agregar macros?</button>
+  <div class="macro-help-panel hidden" id="macroHelpPanel">
+    <div class="macro-help-frame-wrap">
+      <iframe class="macro-help-frame" src="" title="Cómo agregar macros" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+  <input type="text" class="search-box" id="macroSearch" placeholder="Buscar macro...">
+  <div class="count" id="macroCount"></div>
+  <div id="macroContainer"></div>
+</section>
+
+<div class="instructor-modal-overlay hidden" id="instructorModalOverlay">
+  <div class="instructor-modal-box">
+    <div class="instructor-modal-title">🔒 Código de Instructor</div>
+    <div class="instructor-modal-sub">Solo desbloquea las Macros de Instrucción.</div>
+    <input type="password" id="instructorCodeInput" placeholder="Código" inputmode="numeric" maxlength="12">
+    <div class="instructor-modal-error" id="instructorModalError"></div>
+    <div class="instructor-modal-actions">
+      <button class="instructor-btn instructor-btn-secundario" id="btnCancelarInstructorCodigo">Cancelar</button>
+      <button class="instructor-btn instructor-btn-primario" id="btnConfirmarInstructorCodigo">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SECCIÓN: HORARIO ===================== -->
+<section id="section-horario" class="app-section">
+  <iframe class="tz-iframe" src="timeline-gmt.html"></iframe>
+</section>
+
+<!-- ===================== SECCIÓN: ACADEMIA ===================== -->
+<section id="section-academia" class="app-section">
+  <div class="academia-placeholder">
+    <img class="academia-placeholder-bg" id="academiaBg" src="academy_seal.png" alt="">
+
+    <div class="academia-schedule" id="academiaSchedule">
+      <div class="academia-schedule-title">📋 HORARIOS DE INSTRUCCIONES 🚨🫡</div>
+      <div class="turno-grid">
+        <div class="turno-card" data-map="sala-revista">
+          <div class="turno-time">🕔 PRIMERA CLASE</div>
+          <div class="turno-row"><b>Hora:</b> 17:00 - 19:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Sala de Revista</div>
+          <div class="turno-row"><b>Instructor:</b> Drak Reem</div>
+          <div class="turno-row"><b>Auxiliar:</b> Eliel Martinez</div>
+          <div class="turno-row turno-days"><b>Días:</b> Martes, Miercoles, Viernes</div>
+        </div>
+        <div class="turno-card recruit-card" data-map="vestidores">
+          <div class="turno-time">🎯 RECLUTAMIENTO</div>
+          <div class="turno-row"><b>Hora:</b> 19:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Vestidores</div>
+        </div>
+        <div class="turno-card" data-map="sala-revista">
+          <div class="turno-time">🕗 SEGUNDA CLASE</div>
+          <div class="turno-row"><b>Hora:</b> 20:00 - 22:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Sala de Revista</div>
+          <div class="turno-row"><b>Instructor:</b> Goliat Carwley(Excepto Viernes)</div>
+          <div class="turno-row"><b>Auxiliar:</b> -</div>
+          <div class="turno-row turno-days"><b>Días:</b> Martes, Miercoles, Viernes</div>
+        </div>
+        <div class="turno-card recruit-card" data-map="vestidores">
+          <div class="turno-time">🎯 RECLUTAMIENTO</div>
+          <div class="turno-row"><b>Hora:</b> 22:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Vestidores</div>
+        </div>
+        <div class="turno-card" data-map="sala-revista">
+          <div class="turno-time">🕚 TERCERA CLASE</div>
+          <div class="turno-row"><b>Hora:</b> 23:00 - 01:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Sala de Revista</div>
+          <div class="turno-row"><b>Instructor:</b> Axo Velasco</div>
+          <div class="turno-row"><b>Auxiliar:</b> —</div>
+          <div class="turno-row turno-days"><b>Días:</b> Martes, Miercoles, Viernes</div>
+        </div>
+        <div class="turno-card" data-map="sala-revista">
+          <div class="turno-time">🕑 CUARTA CLASE</div>
+          <div class="turno-row"><b>Hora:</b> 02:00 - 04:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Sala de Revista</div>
+          <div class="turno-row"><b>Instructor:</b> Lilith Black</div>
+          <div class="turno-row"><b>Auxiliar:</b> Sr Chakalito</div>
+          <div class="turno-row turno-days"><b>Días:</b> Martes, Miercoles, Viernes</div>
+        </div>
+        <div class="turno-card" data-map="sala-revista">
+          <div class="turno-time">🕔 QUINTA CLASE</div>
+          <div class="turno-row"><b>Hora:</b> 05:00 - 07:00</div>
+          <div class="turno-row"><b>Ubicación:</b> Sala de Revista</div>
+          <div class="turno-row"><b>Instructor:</b> Por Definir</div>
+          <div class="turno-row"><b>Auxiliar:</b> —</div>
+          <div class="turno-row turno-days"><b>Días:</b> Martes, Miercoles, Viernes</div>
+        </div>
+      </div>
+      <div class="academia-updated" id="academiaUpdated">Última actualización: 18 de julio de 2026 · 01:00 hrs</div>
+    </div>
+
+    <div class="academia-two-col">
+      <div class="academia-col-left">
+        <div class="turno-card attendance-card" data-action="asistencias">
+          <div class="turno-time">📋 LISTA DE ASISTENCIAS</div>
+          <div class="turno-row">Ver registro de asistencia a clases de academia</div>
+        </div>
+        <div class="turno-card evaluaciones-card" data-action="evaluaciones">
+          <div class="turno-time">🎖️ EVALUACIONES</div>
+          <div class="turno-row">Ver resultados de evaluaciones por rango (Tenientes, Capitanes)</div>
+        </div>
+        <div class="turno-card temario-card">
+          <div class="turno-time">📚 TEMARIO</div>
+          <div class="turno-row">Contenido a definir.</div>
+        </div>
+      </div>
+      <div class="academia-col-right">
+        <div class="roster-card">
+          <div class="roster-title">Miembros de la Academia Policial</div>
+          <div class="roster-group">
+            <div class="roster-role">Líder</div>
+            <div class="roster-names">Lilith Black</div>
+          </div>
+          <div class="roster-group">
+            <div class="roster-role">Sublíder(es)</div>
+            <div class="roster-names">Drak Reem</div>
+          </div>
+          <div class="roster-group">
+            <div class="roster-role">Instructores</div>
+            <div class="roster-names">Goliat Crawley • Sr Chakalito • Axo Velasco • Eliel Martinez</div>
+          </div>
+          <div class="roster-group">
+            <div class="roster-role">Miembros a Prueba</div>
+            <div class="roster-names">Joyce Blaxland</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="academia-map" id="academiaMap">
+      <button class="map-back-btn" id="closeMapBtn">← VOLVER</button>
+      <div class="map-frame" id="mapFrameInner"></div>
+    </div>
+
+    <div class="academia-map" id="academiaAttendance">
+      <button class="map-back-btn" id="closeAttendanceBtn">← VOLVER</button>
+      <div class="map-frame attendance-frame">
+        <iframe src="asistencias.html" class="attendance-iframe"></iframe>
+      </div>
+    </div>
+
+    <div class="academia-map" id="academiaEvaluaciones">
+      <button class="map-back-btn" id="closeEvaluacionesBtn">← VOLVER</button>
+      <div class="evaluaciones-tabs">
+        <button class="eval-tab active" data-rango="tenientes.html">Tenientes</button>
+        <button class="eval-tab" data-rango="capitanes.html">Capitanes</button>
+      </div>
+      <div class="map-frame attendance-frame">
+        <iframe src="tenientes.html" class="evaluaciones-iframe"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   DATOS
+   ============================================================ */
+const codigos10 = [
+["10-4","Entendido"],
+["10-6","Actualmente ocupado"],
+["10-7","Fuera de servicio"],
+["10-8","En servicio"],
+["10-10","Pelea en curso"],
+["10-11","Parada de tráfico"],
+["10-12","Acompañamiento activo"],
+["10-13","Disparos efectuados"],
+["10-15","Sospechoso bajo custodia"],
+["10-20","¿Ubicación?"],
+["10-22","Desestimar"],
+["10-23","Llegada al lugar"],
+["10-24","Indique"],
+["10-26","Sospechoso detenido"],
+["10-27","Verificación de identidad"],
+["10-29","Verificación de órdenes de arresto"],
+["10-30","Iniciando búsqueda de criminales buscados"],
+["10-32","Se necesita respaldo"],
+["10-41","Solicitud de transporte de prisionero"],
+["10-47","Tiroteo en curso"],
+["10-57","Atropello y fuga"],
+["10-60","Sospechosos armados"],
+["10-80","Persecución en curso"],
+["10-97","En ruta"],
+["10-100","Oficial herido"]
+].map(([code, meaning]) => ({cat:"Códigos 10", code, title:meaning, desc:"", punish:""}));
+
+const codigosCode = [
+["Code 1","Responder sin urgencia, cuando puedas"],
+["Code 2","Urgente, sin luces ni sirena"],
+["Code 3","Urgente, con luces y sirena, máxima velocidad"],
+["Code 4","Situación bajo control, no se necesita más asistencia"],
+["Code 5","Vigilancia en curso, no acercarse"],
+["Code 6","Unidad investigando fuera del vehículo"],
+["Code 7","Fuera de servicio para comer/descanso"],
+["Code 8","Incendio en progreso"],
+["Code 9","Bloqueo de tránsito / cárcel"],
+["Code 10","Bomba o amenaza de bomba"],
+["Code 33","Silencio en la frecuencia, solo tráfico de emergencia"],
+["Code 100","Silencio total, situación crítica"]
+].map(([code, meaning]) => ({cat:"Códigos Code", code, title:meaning, desc:"", punish:""}));
+
+const infracciones = [
+// Infracción Penal (Delitos Graves)
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.1", title:"Captura de instituciones estatales", desc:"Tomar instituciones del estado por la fuerza.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.2", title:"Toma de poder por la fuerza", desc:"Intentar tomar el poder de forma violenta.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.3", title:"Rehenes o secuestro", desc:"Tomar rehenes o secuestrar a un jugador.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.4", title:"Colisión fatal con peatón", desc:"Atropellar y matar a un peatón.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.5", title:"Robo frustrado", desc:"Intento de robo que no se completa.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.6", title:"Robo a un oficial de policía", desc:"Robar a un oficial de policía.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.7", title:"Entrada no coordinada a territorio protegido", desc:"Ingresar sin coordinación a zonas protegidas por la ley.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.8", title:"Colisión con peatón", desc:"Atropellar a un peatón (sin resultado fatal).", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.9", title:"Disparo en lugar público", desc:"Disparar un arma en un lugar público.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.10", title:"Soborno a un oficial", desc:"Ofrecer o dar soborno a un oficial de policía.", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.11", title:"Asesinato de civil o policía", desc:"Matar a un civil o a un oficial de policía.(Se agrega en automatico)", punish:"20 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Penal (Delitos Graves)", code:"1.12", title:"Agresión a un policía", desc:"Golpear a un oficial de policía.(Se agrega en automatico)", punish:"20 minutos de cárcel."},
+// Infracción Civil (Infracciones)
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.1", title:"Daño a propiedad del Estado", desc:"Causar daño a bienes/propiedad estatal.", punish:"10 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.2", title:"Daño a propiedad privada", desc:"Causar daño o perjuicio a propiedad de otro jugador.", punish:"10 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.3", title:"Llamadas falsas a emergencias", desc:"Llamadas falsas a la policía y/o servicios de emergencia.", punish:"10 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.4", title:"Libertinaje", desc:"Música tras pedir que se apague, escupir en la cara, etc.", punish:"10 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.5", title:"Amenazas de muerte/asesinato", desc:"Amenazar con matar o asesinar a alguien.", punish:"10 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.6", title:"Insultar a un funcionario estatal", desc:"Insultar a un representante del Estado.", punish:"10 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Civil (Infracciones)", code:"2.7", title:"Extorsión", desc:"Extorsionar a otro jugador.", punish:"10 minutos de cárcel."},
+// Infracción Administrativa (5 minutos)
+{cat:"Infracciones", sub:"Infracción Administrativa (Delitos Menores)", code:"3.1", title:"Resistir el arresto", desc:"Resistirse a ser arrestado por un oficial.", punish:"5 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Administrativa (Delitos Menores)", code:"3.2", title:"Desobedecer a un oficial", desc:"No obedecer las órdenes de un oficial de policía.", punish:"5 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Administrativa (Delitos Menores)", code:"3.3", title:"Ayudar a resistir el arresto", desc:"Ayudar a otro jugador a resistirse a un arresto.", punish:"5 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Administrativa (Delitos Menores)", code:"3.4", title:"Violación de normas de tráfico", desc:"Conducir en sentido contrario, chocar postes, pasar semáforos en rojo.", punish:"5 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Administrativa (Delitos Menores)", code:"3.5", title:"Agresión a un civil", desc:"Golpear a un civil.", punish:"5 minutos de cárcel."},
+{cat:"Infracciones", sub:"Infracción Administrativa (Delitos Menores)", code:"3.6", title:"Negarse a presentar documentos", desc:"No mostrar identificación, documentos del coche o licencias de armas cuando se solicitan.", punish:"5 minutos de cárcel."},
+];
+
+const macrosGenerales = [
+["PATRULLAJE", "/flobby SOLICITO PERMISO PARA SUBIR A PISO 2 A PATRULLAJE CALLEJERO."],
+["MAXIMO RESPETO", "/me MI MÁXIMO RESPETO SR(A) [ETIQUETA DE RANGO]. ¡SU NOMBRE, PRESENTÁNDOSE!"],
+["TASER", "/do ¡TASER! ¡TASER! ¡TASER! DESPLIEGA UN TASER EN UN SOSPECHOSO."],
+["TASER VEHICULO", "/do ¡TASER! ¡TASER! ¡TASER! ROMPE LA VENTANA Y TASER A UN CIVIL, LUEGO LO SACA DEL VEHÍCULO."],
+["DISPARAR", "/do DISPARAR AL SOSPECHOSO ARMADO / VEHÍCULO PARA PROTEGER A LOS CIUDADANOS, COMPAÑEROS OFICIALES Y A SÍ MISMO."],
+["BAJAR ARMA", "/me ¡BAJE EL ARMA INMEDIATAMENTE O UTILIZARÉ TAZER/FUERZA LETAL!"],
+["ABANDONAR AREA", "/me ¡ABANDONE EL ÁREA O SERÁ ARRESTADO (A) / DETENIDO (A)!"],
+["BALIZA", "/me POR NO SEGUIR MIS ÓRDENES, LE HE COLOCADO UN DISPOSITIVO DE RASTREO."],
+["DOCUMENTOS", "/me CIUDADANO PORFAVOR PERMITAME SUS DOCUMENTOS. "],
+["PRESENTACION", "/me HOLA, SOY EL (RANGO AQUÍ) (TU NOMBRE AQUÍ). SOY UN OFICIAL DE LA POLICÍA DEL ESTADO DE LA COSTA OESTE DE LAGUNA. ¿CÓMO LE PUEDO AYUDAR?"],
+["REGISTRAR DOCUMENTOS", "/do REGISTRANDO LOS DOCUMENTOS AL SOSPECHOSO."],
+["PUEDE RETIRARSE", "/me SOSPECHOSO LIMPIO. PUEDE RETIRARSE."],
+["DETENCION", "/me ¡ESTÁ SIENDO DETENIDO, NO ARRESTADO! ¡POR FAVOR, SÍGUEME!"],
+["ARRESTO", "/me [POLICÍA DE LAGUNA] CIUDADANO. USTED ESTÁ ARRESTADO. TIENE DERECHO A GUARDAR SILENCIO. TODO LO QUE DIGA PUEDE SER USADO EN SU CONTRA."],
+["ORDENES DE ARRESTO", "/me ¡HAS SIDO ARRESTADO PORQUE TIENES ÓRDENES DE ARRESTO! ¡USTED ESTÁ EN LA LISTA DE LOS MÁS BUSCADOS!"],
+["BODYCAM", "/do CONFIRMA QUE LA CÁMARA CORPORAL ESTÁ ACTIVADA."],
+["ZONA VERDE", "/me ¡ÚLTIMA ADVERTENCIA! ¡ABANDONA LA ZONA AHORA O SERÁS ACUSADO DE UN 1.7 Y 3.2! ¡ESTA ES UNA ZONA VERDE, NO UNA ZONA DE RECREO!"],
+["APAGUE EL MOTOR", "/me [POLICÍA DE LAGUNA] CIUDADANO, POR FAVOR, DETÉNGASE Y APAGUE EL MOTOR"],
+].map(([label, text], i) => ({cat:"Macros", sub:"Macros Generales", code:`M${i+1}`, label, macroText:text, isMacro:true}));
+
+const macrosCodigo10 = [
+["10-4", "/flobby (10-4) ENTENDIDO."],
+["10-6", "/flobby (10-6) ACTUALMENTE OCUPADO."],
+["10-7", "/flobby (10-7) FUERA DE SERVICIO."],
+["10-8", "/flobby (10-8) EN SERVICIO."],
+["10-10", "/flobby (10-10) PELEA EN CURSO."],
+["10-11", "/flobby (10-11) PARADA DE TRÁFICO."],
+["10-12", "/flobby (10-12) ACOMPAÑAMIENTO ACTIVO."],
+["10-13", "/flobby (10-13) DISPAROS EFECTUADOS."],
+["10-15", "/flobby (10-15) SOSPECHOSO BAJO CUSTODIA."],
+["10-20", "/flobby (10-20) ¿UBICACIÓN?"],
+["10-22", "/flobby (10-22) DESESTIMAR."],
+["10-23", "/flobby (10-23) LLEGADA AL LUGAR."],
+["10-24", "/flobby (10-24) INDIQUE."],
+["10-26", "/flobby (10-26) SOSPECHOSO DETENIDO."],
+["10-27", "/flobby (10-27) VERIFICACIÓN DE IDENTIDAD."],
+["10-29", "/flobby (10-29) VERIFICACIÓN DE ÓRDENES DE ARRESTO."],
+["10-30", "/flobby (10-30) INICIANDO BÚSQUEDA DE CRIMINALES BUSCADOS"],
+["10-32", "/flobby (10-32) SE NECESITA RESPALDO."],
+["10-41", "/flobby (10-41) SOLICITUD DE TRANSPORTE DE PRISIONERO."],
+["10-47", "/flobby (10-47) TIROTEO EN CURSO."],
+["10-57", "/flobby (10-57) ATROPELLO Y FUGA."],
+["10-60", "/flobby (10-60) SOSPECHOSOS ARMADOS."],
+["10-80", "/flobby (10-80) PERSECUCIÓN EN CURSO."],
+["10-97", "/flobby (10-97) EN RUTA."],
+["10-100", "/flobby (10-100) OFICIAL HERIDO."],
+["32-37", "/flobby (32-37) SE NECESITA SUPERVISOR."],
+["CÓDIGO 2", "/flobby (CÓDIGO 2) LUCES Y SIRENAS APAGADAS."],
+["CÓDIGO 3", "/flobby (CÓDIGO 3) LUCES Y SIRENAS ENCENDIDAS."],
+["CÓDIGO 4", "/flobby (CÓDIGO 4) ESCENA DESPEJADA."],
+].map(([label, text], i) => ({cat:"Macros", sub:"Macros Código 10", code:`MC${i+1}`, label, macroText:text, isMacro:true}));
+
+const macrosInstruccion = [
+["INSTRUCTOR", "/me ¡MI MÁXIMO RESPETO SR/A [rango] [nombre] [INSTRUCTOR DE ACADEMIA POLICIAL], PRESENTÁNDOSE!"],
+["PPH", "/do Favor de colocar “PPH” en el chat en caso de comentarios y/o dudas."],
+["ACADEMIA EN CAMINO", "/flobby ACADEMIA POLICIAL en camino para instrucción de reclutamiento."],
+["CONVOCATORIA INSTRUCCION", "/flobby RECLUTAS HASTA SARGENTOS MAYORES, acudir a sala de revista en PISO 2 para INSTRUCCIÓN DE ACADEMIA (obligatorias para ascender a chaleco)."],
+["PERMISO CONCEDIDO", "/flobby PERMISO CONCEDIDO SR(A), BUEN PATRULLAJE. RECUERDA LAS NORMAS: ¡CIEGO, SORDO Y MUDO! [autorización de academia]"],
+["PERMISO NEGADO", "/flobby ¡NEGADO SR(A), tenemos INSTRUCCIÓN ACTIVA, favor de acudir a piso 2 en sala de revista!"],
+["EVALUACION TENIENTE", "/flobby EVALUACION PARA ASCENSO A TENIENTE EN SALA DE DESCANSO"],
+["INSTRUCCION ACTIVA", "/flobby NEGADO SR(A), TENEMOS INSTRUCCION ACTIVA, FAVOR DE ACUDIR A PISO 2 EN SALA DE REVISTA!"],
+["REUNION INSTRUCTORES", "/flobby INSTRUCTORES DE ACADEMIA FAVOR DE ACUDIR A REUNIÓN EN [ubicacion]."],
+].map(([label, text], i) => ({cat:"Macros", sub:"Macros de Instrucción", code:`MI${i+1}`, label, macroText:text, isMacro:true}));
+
+const macros = [...macrosGenerales, ...macrosCodigo10, ...macrosInstruccion];
+
+// Vincula cada código 10 de la sección Reglas con su macro correspondiente (si existe)
+const macroByCode10 = {};
+macrosCodigo10.forEach(m => { macroByCode10[m.label] = m.macroText; });
+codigos10.forEach(r => {
+  if (macroByCode10[r.code]) {
+    r.copyMacro = macroByCode10[r.code];
+  }
+});
+
+const reglasBasicas = [
+// Conducta General
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R1", title:"PROHIBIDO usar fuerza bajo cualquier circunstancia (arrestos, esposas, armas, balizas y táser).", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R2", title:"PROHIBIDO desobedecer órdenes de superiores.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R3", title:"OBLIGATORIO saludar a superiores utilizando \"Señor\" o \"Señora\".", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R4", title:"PROHIBIDO faltar el respeto a cualquier persona.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R5", title:"PROHIBIDO solicitar promociones o evaluaciones antes de cumplir 3 días.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R6", title:"PROHIBIDO sobornar o intentar influenciar a superiores.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R7", title:"PROHIBIDO discutir, cuestionar o desafiar órdenes frente a civiles o personal.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Conducta General", code:"R8", title:"OBLIGATORIO mantener conducta profesional en todo momento.", desc:"", punish:"Sanción disciplinaria."},
+// Interacción y Comunicación
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R9", title:"PROHIBIDO hablar con civiles o pandillas sin autorización.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R10", title:"PROHIBIDO mantener contacto directo o indirecto con pandillas.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R11", title:"PROHIBIDO salir del departamento sin autorización del superior a cargo.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R12", title:"PROHIBIDO acompañar a otro novato o civil sin permiso.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R13", title:"PROHIBIDO interrumpir modulaciones de radio.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R14", title:"PROHIBIDO ignorar llamadas por radio o Flobby de un superior.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R15", title:"OBLIGATORIO responder con claridad, respeto y brevedad por radio.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Interacción y Comunicación", code:"R16", title:"PROHIBIDO dar información del departamento a personas no autorizadas.", desc:"", punish:"Sanción disciplinaria."},
+// Movilidad y Áreas
+{cat:"Reglas Básicas (Reclutas)", sub:"Movilidad y Áreas", code:"R17", title:"PROHIBIDO sacar vehículos en círculos rojos en piso 0.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Movilidad y Áreas", code:"R18", title:"PROHIBIDO subir al primer piso o entrar a la cárcel sin autorización.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Movilidad y Áreas", code:"R19", title:"PROHIBIDO subir al segundo piso sin autorización para patrullaje callejero.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Movilidad y Áreas", code:"R20", title:"PROHIBIDO visitar tiendas sin la presencia de un supervisor.", desc:"", punish:"Sanción disciplinaria."},
+{cat:"Reglas Básicas (Reclutas)", sub:"Movilidad y Áreas", code:"R21", title:"OBLIGATORIO respetar señales, rutas y protocolos de tránsito.", desc:"", punish:"Sanción disciplinaria."},
+];
+
+// NOTA: "macros" ya NO se mezcla dentro de "rules". Tiene su propia sección.
+const rules = [
+...codigos10,
+...codigosCode,
+...infracciones,
+// 1. Términos Generales
+{cat:"Términos Generales", code:"1.1", title:"Definición del proyecto", desc:"ONESTATE es un proyecto de rol ambientado en un estado estadounidense.", punish:""},
+{cat:"Términos Generales", code:"1.2", title:"Responsabilidad del jugador", desc:"Desde el registro, el jugador conoce y es responsable de cumplir todas las reglas.", punish:""},
+{cat:"Términos Generales", code:"1.9-1.10", title:"Comandos de ayuda", desc:"/help para ayuda general. /respawn si te quedas atascado en objetos del mapa.", punish:""},
+{cat:"Términos Generales", code:"1.11-1.12", title:"Chat No RP", desc:"Mensajes no relacionados con el RP van en el chat no RP usando /n. Debe mantenerse respetuoso.", punish:""},
+{cat:"Términos Generales", code:"1.13", title:"Límite de cancelación de rentas", desc:"Cancelar más de 5 rentas en 30 días bloquea la función de cancelar por los siguientes 30 días.", punish:""},
+// 4. Cuentas
+{cat:"Cuentas", code:"AC1", title:"Venta de cuenta", desc:"Venta y/o intento de venta de una cuenta en sitios de terceros o en el servidor.", punish:"Ban permanente de todas las cuentas del jugador."},
+{cat:"Cuentas", code:"AC2", title:"Transferir cuenta", desc:"Transferir y/o intentar transferir una cuenta a otro jugador.", punish:"Ban permanente de la cuenta transferida."},
+{cat:"Cuentas", code:"AC3", title:"Multicuentas", desc:"Crear más de 3 cuentas en un mismo dispositivo.", punish:"Ban permanente de todas las cuentas después de la tercera."},
+{cat:"Cuentas", code:"AC4", title:"Hackeo de cuenta", desc:"Hackear y/o obtener acceso no autorizado a la cuenta de otro jugador.", punish:"Ban permanente del infractor + reset de contraseña de la cuenta afectada."},
+{cat:"Cuentas", code:"AC5", title:"RMT", desc:"Vender, anunciar, intercambiar o comprar bienes/dinero del juego por dinero real.", punish:"Ban permanente de todas las cuentas."},
+// 5. RP
+{cat:"Reglas de RP", code:"RP1", title:"DeathMatch (DM)", desc:"Infligir daño o matar al personaje de otro jugador sin motivo RP.", punish:"20 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP2", title:"DeathMatch Auto (DMAuto)", desc:"Dañar o destruir el vehículo de otro jugador sin motivo RP.", punish:"20 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP3", title:"Poder No RP (NP)", desc:"Exceder las capacidades físicas del personaje.", punish:"10 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP4", title:"Non Role Play (NRP)", desc:"Violación de la lógica del personaje, situaciones poco realistas.", punish:"15 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP5", title:"Meta Gaming (MG)", desc:"Usar información del mundo real dentro del RP.", punish:"30 min de silencio a 60 min de cárcel."},
+{cat:"Reglas de RP", code:"RP6", title:"Rechazo del RP", desc:"Rechazar el proceso de rol para beneficio personal.", punish:"30 a 60 min de cárcel, según frecuencia."},
+{cat:"Reglas de RP", code:"RP7", title:"Desequilibrio en RP", desc:"Uso desequilibrado de /do, /me, /try.", punish:"20 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP8", title:"AFK", desc:"Inactividad por más de 5 minutos.", punish:"Desconexión del servidor."},
+{cat:"Reglas de RP", code:"RP9", title:"DriveBy (DB)", desc:"Dañar o matar con un vehículo.", punish:"60 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP9.1", title:"Mass Drive-By", desc:"Dañar o matar a un grupo de jugadores con un vehículo.", punish:"Ban de 12 horas."},
+{cat:"Reglas de RP", code:"RP10", title:"Repeat Kill (RK)", desc:"Matar/perseguir a un jugador tras su muerte, o volver al lugar en 15 min.", punish:"90 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP11", title:"Zonas protegidas", desc:"Cometer delitos o atacar en zonas verdes/zonas de trabajo, o acechar salidas.", punish:"30 a 60 min de cárcel."},
+{cat:"Reglas de RP", code:"RP12", title:"Secuestro NRP", desc:"Secuestro poco realista: más del 50% de secuestrados vs secuestradores, o más de 5 a la vez.", punish:"30 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP13", title:"Facción NRP", desc:"Comportamiento no RP dentro de facciones (liberación ilegal, ejecuciones por policía).", punish:"Exoneración de facción y/o 30 min cárcel a 3 días de ban."},
+{cat:"Reglas de RP", code:"RP14", title:"Acoso sexual", desc:"Cualquier forma de acción sexual no consentida, incluyendo simulaciones y diálogos/acciones explícitas, uso de insultos étnicos y/o LGBT+, o atención excesiva. Todas las acciones sexuales requieren consentimiento OOC. No deben ocurrir en áreas públicas o frecuentadas.", punish:"60 min de silencio o 24h a 30 días de ban."},
+{cat:"Reglas de RP", code:"RP15", title:"Interrupción de facción", desc:"Provocar a miembros de facción por diversión o interrumpir sus operaciones.", punish:"30 minutos de cárcel."},
+{cat:"Reglas de RP", code:"RP16", title:"Actos contra personal de emergencia", desc:"Actos delictivos contra personal médico de emergencia.", punish:"90 min de cárcel a 12 horas de expulsión."},
+// 6. Chat
+{cat:"Chat y Comunicación", code:"CHAT1", title:"Insultos a jugadores", desc:"Insultar sin motivo relacionado con el juego.", punish:"Ban de 24 horas."},
+{cat:"Chat y Comunicación", code:"CHAT2", title:"Insultos a familiares", desc:"Insultar a familiares de otros jugadores, directa o veladamente.", punish:"240 min de silencio a 3 días de ban."},
+{cat:"Chat y Comunicación", code:"CHAT3", title:"Insultos religión/nacionalidad", desc:"Insultar religión/nacionalidad u otros temas sensibles.", punish:"240 min de silencio a 3 días de ban."},
+{cat:"Chat y Comunicación", code:"CHAT4", title:"Insultos a la Administración", desc:"Insultar a cualquier representante de la administración.", punish:"240 min de silencio a 7 días de ban."},
+{cat:"Chat y Comunicación", code:"CHAT5", title:"Inundación (flood)", desc:"Inundar el chat con mensajes, incluyendo macros.", punish:"Silencio 10 minutos."},
+{cat:"Chat y Comunicación", code:"CHAT6", title:"Inundación en reportes", desc:"Inundar el sistema de reportes u otro feedback.", punish:"Silencio 10 a 30 minutos."},
+{cat:"Chat y Comunicación", code:"CHAT7", title:"Publicidad no autorizada", desc:"Publicidad de recursos de terceros.", punish:"Ban de 10 días."},
+{cat:"Chat y Comunicación", code:"CHAT8", title:"Música en voz", desc:"Ruido/música en el chat de voz.", punish:"Silencio 60 minutos."},
+{cat:"Chat y Comunicación", code:"CHAT9", title:"Suplantar Administración", desc:"Fingir ser representante de la administración/empresa.", punish:"Ban permanente de todas las cuentas."},
+{cat:"Chat y Comunicación", code:"CHAT10", title:"Hacer trampa", desc:"Cualquier forma de engañar a jugadores.", punish:"Ban permanente de todas las cuentas."},
+{cat:"Chat y Comunicación", code:"CHAT11", title:"Engañar a la Administración", desc:"Cualquier forma de engaño hacia la administración.", punish:"Ban permanente de todas las cuentas."},
+{cat:"Chat y Comunicación", code:"CHAT12", title:"Difamación", desc:"Atacar/difamar al proyecto o miembros públicamente.", punish:"Ban de todas las cuentas hasta 30 días."},
+{cat:"Chat y Comunicación", code:"CHAT13", title:"Amenazas fuera de juego", desc:"Amenazas a la integridad física real de alguien.", punish:"Ban de 10 días."},
+{cat:"Chat y Comunicación", code:"CHAT14", title:"Influencia NRP", desc:"Forzar a otros a romper reglas para que sean expulsados.", punish:"Ban de 12 horas."},
+{cat:"Chat y Comunicación", code:"CHAT15", title:"Comportamiento tóxico", desc:"Acciones/comentarios hostiles dirigidos a jugadores o admins.", punish:"Ban de 1 a 3 días."},
+{cat:"Chat y Comunicación", code:"CHAT16", title:"Idioma oficial", desc:"Se debe usar el idioma oficial salvo con grupos de 5 o menos jugadores.", punish:"Silencio 10/15/30/60 min o ban de 12h según recurrencia."},
+{cat:"Chat y Comunicación", code:"CHAT17", title:"Divulgación de datos personales", desc:"Doxxing o divulgación de datos privados de otros jugadores.", punish:"Ban permanente de todas las cuentas."},
+{cat:"Chat y Comunicación", code:"TCHAT1", title:"Chat comercial - Fuera de tema", desc:"Mensajes no relacionados con comercio en el chat comercial.", punish:"Silencio 10 a 60 minutos."},
+{cat:"Chat y Comunicación", code:"TCHAT2", title:"Chat comercial - Engañar", desc:"Anunciar productos inexistentes o que no son del vendedor.", punish:"Silencio 10 minutos."},
+{cat:"Chat y Comunicación", code:"TCHAT3", title:"Chat comercial - Spam", desc:"Spam o inundación con mensajes repetitivos.", punish:"Silencio 5 minutos."},
+{cat:"Chat y Comunicación", code:"TCHAT4", title:"Chat comercial - Fraude", desc:"Engañar o confundir jugadores al hacer trading.", punish:"Ban de 12 horas + retiro de artículos ilegales."},
+// 7. Violaciones graves
+{cat:"Violaciones Graves", code:"ABUSE1", title:"Abuso de mods del juego", desc:"Aprovechar bugs/vulnerabilidades (disparar a través de paredes, comer en peleas, usar JAIL CARD indebidamente, etc).", punish:"Ban de 1 a 30 días."},
+{cat:"Violaciones Graves", code:"ABUSE2", title:"Abuso de AFK", desc:"Usar bugs o programas de terceros (clickers/macros) para evitar desconexión por inactividad.", punish:"Ban de 3 días."},
+{cat:"Violaciones Graves", code:"ABUSE3", title:"Incumplimiento sistemático", desc:"Violación repetida y sistemática de reglas (referencia: 5 violaciones).", punish:"Ban de 3 a 30 días."},
+{cat:"Violaciones Graves", code:"ABUSE3.1", title:"Incumplimiento extremo", desc:"Múltiples infracciones ABUSE3 repetidas (referencia: 3 infracciones ABUSE3).", punish:"Ban permanente de todas las cuentas."},
+{cat:"Violaciones Graves", code:"ABUSE4", title:"Interrupción de eventos grandes", desc:"Interrumpir/obstruir eventos con muchos jugadores.", punish:"Ban de 12 horas."},
+{cat:"Violaciones Graves", code:"ABUSE5", title:"Bloqueo de puntos relevantes", desc:"Impedir acceso a marcadores de trabajo, entradas, etc.", punish:"10 a 60 minutos de cárcel."},
+{cat:"Violaciones Graves", code:"ALERT1", title:"Evasión de ban", desc:"Intentar eludir o evadir una prohibición/castigo.", punish:"Ban de 14 días a permanente."},
+{cat:"Violaciones Graves", code:"ALERT2", title:"Daño a los servidores", desc:"Dañar la economía, estabilidad de servidores o el proyecto en general.", punish:"Ban permanente de todas las cuentas."},
+{cat:"Violaciones Graves", code:"ALERT3", title:"Software de terceros (cheats)", desc:"Modificar archivos o usar programas para alterar datos del juego.", punish:"Ban permanente de todas las cuentas."},
+{cat:"Violaciones Graves", code:"ALERT4", title:"Daño a la economía", desc:"Transferir moneda/artículos entre jugadores por encima de los límites.", punish:"Eliminación del monto sin reembolso; posible ban de 30 días a permanente."},
+{cat:"Violaciones Graves", code:"ALERT5", title:"Difamación externa", desc:"Socavar la integridad del proyecto/miembros en canales externos (Discord oficial u otros).", punish:"Ban permanente de todas las cuentas."},
+// 8. Contenido en vivo
+{cat:"Contenido en Vivo", code:"MEDIA1", title:"Stream Sniping / Interferencia", desc:"Interrumpir transmisiones en vivo, acosar streamers, sabotear grabaciones.", punish:"Ban de 1 a 24 horas."},
+// 9. Bandas
+{cat:"Reglas de Bandas", code:"CLAN1", title:"Nombre/rangos de la banda", desc:"El nombre, descripción y rangos no deben contener palabras ofensivas.", punish:"Cambio obligatorio del nombre o descripción."},
+{cat:"Reglas de Bandas", code:"CLAN2", title:"Bloqueo de marcadores de entrada", desc:"Bloquear los marcadores de entrada a la casa de la banda.", punish:"30 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN3", title:"Reglas del chat de banda", desc:"Se aplican las mismas reglas de la categoría CHAT dentro del chat de banda.", punish:"Según la categoría CHAT correspondiente."},
+{cat:"Reglas de Bandas", code:"CLAN4", title:"Alianzas prohibidas en eventos", desc:"Alianzas entre bandas durante eventos.", punish:"30 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN5", title:"Uso del taser de banda", desc:"Usar el taser contra un jugador más de dos veces sin razón RP.", punish:"30 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN5.1", title:"Taser contra miembros de facción", desc:"Usar el taser para sacar a un jugador de un vehículo de facción sin razón RP.", punish:"90 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN6", title:"Matar en marcadores de entrada/salida", desc:"Matar jugadores en los marcadores de la casa de banda, disparar dentro/fuera.", punish:"40 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN7", title:"Bloquear con vehículos", desc:"Bloquear entradas/salidas de la casa de banda con vehículos.", punish:"60 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN8", title:"Reclutar en zonas verdes", desc:"Llamar/anunciar para unirse a una banda en zonas verdes.", punish:"Silencio 60 minutos."},
+{cat:"Reglas de Bandas", code:"CLAN9", title:"Taser contra vehículos de trabajo", desc:"Usar taser contra jugadores en taxis/autobuses para sacarlos.", punish:"90 minutos de cárcel."},
+{cat:"Reglas de Bandas", code:"CLAN10", title:"Abuso de moneda de banda", desc:"Uso de bugs para obtener moneda de banda de forma deshonesta.", punish:"Confiscación de bienes o eliminación de la banda sin reembolso."},
+{cat:"Reglas de Bandas", code:"CLAN11", title:"Decisión de administración superior", desc:"La administración puede sancionar casos no especificados en la lista.", punish:""},
+// PD - Facción Policial
+{cat:"PD", code:"PD-1", title:"Acusaciones falsas contra civiles", desc:"Esposar, encarcelar o atacar (Taser/arma) a un civil sin motivo justificado.", punish:"Destitución del cargo + castigo según leyes estatales."},
+{cat:"PD", code:"PD-2", title:"Detención sin causa justificada", desc:"Detener y/o encarcelar a un civil sin causa.", punish:"Destitución del cargo + castigo según leyes estatales."},
+{cat:"PD", code:"PD-3", title:"Atacar civiles sin motivo", desc:"Usar armas, manos o taser contra civiles sin motivo justificado.", punish:"Destitución del cargo."},
+{cat:"PD", code:"PD-4", title:"Falta de respeto", desc:"Grosería, insultos o intolerancia hacia colegas o civiles.", punish:"1 reprimenda."},
+{cat:"PD", code:"PD-5", title:"Uso de fuerza sin previo aviso", desc:"Debe advertirse antes de disparar, usar taser o atacar. Ej: 'Señor, si no se detiene, usaré una pistola eléctrica'.", punish:"1 reprimenda."},
+{cat:"PD", code:"PD-6", title:"Incumplimiento de subordinación", desc:"No seguir órdenes de superiores.", punish:"1 reprimenda."},
+{cat:"PD", code:"PD-7", title:"Infracción de leyes estatales", desc:"Romper las reglas del servidor.", punish:"1 amonestación + sanción según ley estatal."},
+{cat:"PD", code:"PD-8", title:"Vehículos de la empresa para uso personal", desc:"Usar vehículos policiales fuera del servicio.", punish:"1 reprimenda."},
+{cat:"PD", code:"PD-9", title:"Vehículo personal en labores policiales", desc:"Realizar tareas policiales con vehículo propio.", punish:"1 reprimenda."},
+{cat:"PD", code:"PD-10", title:"Insultar a jugadores/empleados", desc:"Insultos fuera de contexto de rol.", punish:"1 reprimenda."},
+{cat:"PD", code:"PD-11", title:"Arrestar sin dar razón", desc:"Debe indicarse el motivo del arresto por voz o texto. Ej: 'Está arrestado por 3 infracciones civiles. Tiene derecho a guardar silencio'.", punish:"1 advertencia."},
+{cat:"PD", code:"PD-12", title:"No responder en Discord / inactividad", desc:"No responder mensajes, no participar en actividades o no seguir instrucciones de Staff Assist o liderazgo.", punish:"1 advertencia."},
+{cat:"PD", code:"PD-13", title:"Arrestar sin captura de pantalla", desc:"Al hacer búsqueda de personas, debe capturarse la lista de infracciones antes de iniciar.", punish:"1 advertencia."},
+{cat:"PD", code:"PD-14", title:"No dar información de arrestados", desc:"No proporcionar información sobre las personas arrestadas.", punish:"1 advertencia."},
+{cat:"PD", code:"PD-15", title:"RP inadecuado", desc:"No interpretar correctamente el rol de policía (usar 'Señor', 'Por favor', explicar motivo de arresto, etc).", punish:"1 advertencia."},
+{cat:"PD", code:"PD-16", title:"Escalado de sanciones", desc:"2 advertencias equivalen a 1 reprimenda. 3 reprimendas suponen destitución del cargo.", punish:""},
+...reglasBasicas,
+];
+
+/* ============================================================
+   UTILIDADES COMUNES
+   ============================================================ */
+function escapeAttr(str) {
+  return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightTags(text) {
+  return text
+    .replace(/^PROHIBIDO/, '<span style="color:#ff6b6b; font-weight:800;">PROHIBIDO</span>')
+    .replace(/^OBLIGATORIO/, '<span style="color:#4ade80; font-weight:800;">OBLIGATORIO</span>');
+}
+
+function renderRuleCard(r) {
+  if (r.isMacro) {
+    return `<div class="rule macro-rule" data-macro="${escapeAttr(r.macroText)}">
+      <div class="macro-label">${r.label}</div>
+      <div class="macro-text">${r.macroText}</div>
+      <div class="expand-hint">toca para copiar</div>
+    </div>`;
+  }
+  if (r.copyMacro) {
+    return `<div class="rule macro-rule" data-macro="${escapeAttr(r.copyMacro)}">
+      <div class="rule-header"><span class="code">${r.code}</span><span class="rule-title">${r.title}</span></div>
+      <div class="expand-hint">toca para copiar macro</div>
+    </div>`;
+  }
+  const displayTitle = (r.title.startsWith('PROHIBIDO') || r.title.startsWith('OBLIGATORIO')) ? highlightTags(r.title) : r.title;
+  return `<div class="rule" onclick="this.classList.toggle('expanded')">
+    <div class="rule-header"><span class="code">${r.code}</span><span class="rule-title">${displayTitle}</span></div>
+    ${r.desc ? `<div class="rule-desc">${r.desc}</div>` : ''}
+    ${r.punish ? `<div class="rule-punish"><b>Castigo:</b> ${r.punish}</div>` : ''}
+    ${r.desc || r.punish ? `<div class="expand-hint">toca para ver más</div>` : ''}
+  </div>`;
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      success ? resolve() : reject(new Error('execCommand failed'));
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+function attachMacroCopyHandler(container) {
+  container.addEventListener('click', (e) => {
+    const el = e.target.closest('.macro-rule');
+    if (!el) return;
+    const text = el.dataset.macro;
+    copyToClipboard(text).then(() => {
+      el.classList.add('copied');
+      const hint = el.querySelector('.expand-hint');
+      const original = hint.textContent;
+      hint.textContent = '✔ ¡Copiado!';
+      setTimeout(() => {
+        el.classList.remove('copied');
+        hint.textContent = original;
+      }, 1200);
+    }).catch(() => {
+      const hint = el.querySelector('.expand-hint');
+      hint.textContent = 'Error al copiar';
+    });
+  });
+}
+
+/* ============================================================
+   SECCIÓN: REGLAS
+   ============================================================ */
+const container = document.getElementById('container');
+const search = document.getElementById('search');
+const tabsEl = document.getElementById('tabs');
+const countEl = document.getElementById('count');
+
+const categories = [...new Set(rules.map(r => r.cat))];
+let selectedFilters = new Set();
+
+function buildTabs() {
+  let html = `<div class="tab active" data-filter="all">Todos</div>`;
+  categories.forEach(c => {
+    html += `<div class="tab" data-filter="${c}">${c}</div>`;
+  });
+  tabsEl.innerHTML = html;
+  tabsEl.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const filter = tab.dataset.filter;
+      if (filter === 'all') {
+        selectedFilters.clear();
+      } else {
+        if (selectedFilters.has(filter)) {
+          selectedFilters.delete(filter);
+        } else {
+          selectedFilters.add(filter);
+        }
+      }
+      updateTabStyles();
+      renderRules();
+    });
+  });
+  updateTabStyles();
+}
+
+function updateTabStyles() {
+  tabsEl.querySelectorAll('.tab').forEach(tab => {
+    const filter = tab.dataset.filter;
+    if (filter === 'all') {
+      tab.classList.toggle('active', selectedFilters.size === 0);
+    } else {
+      tab.classList.toggle('active', selectedFilters.has(filter));
+    }
+  });
+}
+
+function renderRules() {
+  const q = search.value.trim().toLowerCase();
+  let filtered = rules.filter(r => selectedFilters.size === 0 || selectedFilters.has(r.cat));
+
+  if (q) {
+    filtered = filtered.filter(r =>
+      r.code.toLowerCase().includes(q) ||
+      r.title.toLowerCase().includes(q) ||
+      r.desc.toLowerCase().includes(q) ||
+      r.punish.toLowerCase().includes(q)
+    );
+  }
+
+  countEl.textContent = `${filtered.length} regla${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-msg">No se encontraron resultados.</div>`;
+    return;
+  }
+
+  const grouped = {};
+  filtered.forEach(r => {
+    if (!grouped[r.cat]) grouped[r.cat] = [];
+    grouped[r.cat].push(r);
+  });
+
+  let html = '';
+  Object.keys(grouped).forEach(cat => {
+    const cls = cat === 'PD' ? 'category-title pd' : 'category-title';
+    html += `<div class="${cls}">${cat === 'PD' ? '🚔 PD — Facción Policial' : cat}</div>`;
+
+    const items = grouped[cat];
+    const hasSub = items.some(r => r.sub);
+
+    if (hasSub) {
+      const subGrouped = {};
+      items.forEach(r => {
+        const key = r.sub || '';
+        if (!subGrouped[key]) subGrouped[key] = [];
+        subGrouped[key].push(r);
+      });
+      Object.keys(subGrouped).forEach(subKey => {
+        if (subKey) html += `<div class="sub-title">${subKey}</div>`;
+        html += '<div class="rules-grid">';
+        subGrouped[subKey].forEach(r => {
+          html += renderRuleCard(r);
+        });
+        html += '</div>';
+      });
+    } else {
+      html += '<div class="rules-grid">';
+      items.forEach(r => {
+        html += renderRuleCard(r);
+      });
+      html += '</div>';
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+search.addEventListener('input', renderRules);
+attachMacroCopyHandler(container);
+
+/* ============================================================
+   SECCIÓN: MACROS
+   ============================================================ */
+const macroContainer = document.getElementById('macroContainer');
+const macroSearch = document.getElementById('macroSearch');
+const macroCountEl = document.getElementById('macroCount');
+
+// ---- "¿Cómo agregar macros?" — video de ayuda (placeholder por ahora) ----
+const MACRO_HELP_VIDEO_URL = "https://www.youtube.com/embed/0Up5vJ1Hryk"; // TODO: reemplazar por el video real cuando esté listo
+const btnComoAgregarMacros = document.getElementById('btnComoAgregarMacros');
+const macroHelpPanel = document.getElementById('macroHelpPanel');
+const macroHelpFrame = document.querySelector('.macro-help-frame');
+
+btnComoAgregarMacros.addEventListener('click', () => {
+  const estaAbierto = !macroHelpPanel.classList.contains('hidden');
+  if (estaAbierto) {
+    macroHelpPanel.classList.add('hidden');
+    macroHelpFrame.src = ''; // corta la reproducción al cerrar
+  } else {
+    macroHelpFrame.src = MACRO_HELP_VIDEO_URL;
+    macroHelpPanel.classList.remove('hidden');
+  }
+});
+
+// ---- Códigos con rol (desbloquean las Macros de Instrucción) ----
+// Mismo sistema que asistencias.html / tenientes.html / capitanes.html:
+// cualquier código de rol instructor, evaluador o administrador desbloquea.
+const CODIGOS = {
+  "1203": { nombre: "Drak Reem", rol: "administrador" },
+  "5678": { nombre: "Lilith Velarys", rol: "administrador" },
+  "1234": { nombre: "Instructor", rol: "instructor" },
+  "4321": { nombre: "Evaluador", rol: "evaluador" },
+};
+const NIVELES_ROL = { instructor: 1, evaluador: 2, administrador: 3 };
+function rolAlcanza(rolActual, rolRequerido) {
+  return (NIVELES_ROL[rolActual] || 0) >= (NIVELES_ROL[rolRequerido] || 99);
+}
+let instruccionDesbloqueada = false;
+const SUB_INSTRUCCION = "Macros de Instrucción";
+
+function renderMacros() {
+  const q = macroSearch.value.trim().toLowerCase();
+  let filtered = macros;
+  if (q) {
+    filtered = macros.filter(m => m.label.toLowerCase().includes(q) || m.macroText.toLowerCase().includes(q));
+  }
+  macroCountEl.textContent = `${filtered.length} macro${filtered.length !== 1 ? 's' : ''}`;
+  if (filtered.length === 0) {
+    macroContainer.innerHTML = `<div class="empty-msg">No se encontraron resultados.</div>`;
+    return;
+  }
+  const subGrouped = {};
+  filtered.forEach(m => {
+    const key = m.sub || '';
+    if (!subGrouped[key]) subGrouped[key] = [];
+    subGrouped[key].push(m);
+  });
+  let html = '';
+  Object.keys(subGrouped).forEach(subKey => {
+    if (subKey === SUB_INSTRUCCION && !instruccionDesbloqueada) {
+      html += `<div class="sub-title">${subKey}</div>`;
+      html += `<div class="macro-locked-card">
+        <div class="macro-locked-title">🔒 Macros de Instrucción ocultas</div>
+        <div class="macro-locked-sub">Requieren código de instructor.</div>
+        <button class="macro-locked-btn" id="btnMostrarInstruccion">Mostrar</button>
+      </div>`;
+      return;
+    }
+    if (subKey) html += `<div class="sub-title">${subKey}</div>`;
+    html += '<div class="rules-grid">';
+    subGrouped[subKey].forEach(m => { html += renderRuleCard(m); });
+    html += '</div>';
+  });
+  macroContainer.innerHTML = html;
+
+  const btnMostrar = document.getElementById('btnMostrarInstruccion');
+  if (btnMostrar) btnMostrar.addEventListener('click', abrirModalInstructor);
+}
+
+// ---- Modal de código de instructor ----
+const instructorModalOverlay = document.getElementById('instructorModalOverlay');
+const instructorCodeInput = document.getElementById('instructorCodeInput');
+const instructorModalError = document.getElementById('instructorModalError');
+const btnCancelarInstructorCodigo = document.getElementById('btnCancelarInstructorCodigo');
+const btnConfirmarInstructorCodigo = document.getElementById('btnConfirmarInstructorCodigo');
+
+function abrirModalInstructor() {
+  instructorCodeInput.value = '';
+  instructorModalError.textContent = '';
+  instructorModalOverlay.classList.remove('hidden');
+  instructorCodeInput.focus();
+}
+
+function cerrarModalInstructor() {
+  instructorModalOverlay.classList.add('hidden');
+}
+
+function confirmarCodigoInstructor() {
+  const codigo = instructorCodeInput.value.trim();
+  const usuario = CODIGOS[codigo];
+  if (usuario && rolAlcanza(usuario.rol, 'instructor')) {
+    instruccionDesbloqueada = true;
+    cerrarModalInstructor();
+    renderMacros();
+  } else {
+    instructorModalError.textContent = 'Código incorrecto.';
+    instructorCodeInput.value = '';
+    instructorCodeInput.focus();
+  }
+}
+
+btnCancelarInstructorCodigo.addEventListener('click', cerrarModalInstructor);
+btnConfirmarInstructorCodigo.addEventListener('click', confirmarCodigoInstructor);
+instructorCodeInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmarCodigoInstructor();
+});
+instructorModalOverlay.addEventListener('click', e => {
+  if (e.target === instructorModalOverlay) cerrarModalInstructor();
+});
+
+macroSearch.addEventListener('input', renderMacros);
+attachMacroCopyHandler(macroContainer);
+
+/* ============================================================
+   NAVEGACIÓN ENTRE SECCIONES
+   ============================================================ */
+const mainNav = document.getElementById('mainNav');
+const sections = {
+  reglas: document.getElementById('section-reglas'),
+  macros: document.getElementById('section-macros'),
+  horario: document.getElementById('section-horario'),
+  academia: document.getElementById('section-academia'),
+};
+
+function showSection(name) {
+  Object.keys(sections).forEach(key => {
+    sections[key].classList.toggle('active', key === name);
+  });
+  mainNav.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.section === name);
+  });
+}
+
+mainNav.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => showSection(btn.dataset.section));
+});
+
+/* ============================================================
+   INICIALIZACIÓN
+   ============================================================ */
+buildTabs();
+renderRules();
+renderMacros();
+showSection('reglas');
+
+/* ============================================================
+   ACADEMIA: visor de mapa por ubicación
+   ============================================================ */
+const academiaSchedule = document.getElementById('academiaSchedule');
+const academiaMap = document.getElementById('academiaMap');
+const academiaBg = document.getElementById('academiaBg');
+const closeMapBtn = document.getElementById('closeMapBtn');
+const mapFrameInner = document.getElementById('mapFrameInner');
+
+const mapsData = {
+  'sala-revista': {
+    tag: 'PISO 2',
+    img: 'piso2.webp',
+    markers: [
+      { x: 74.5, y: 58, label: 'Ascensores' },
+      { x: 29, y: 85, label: 'Aquí es la clase' },
+    ],
+  },
+  // 'vestidores': pendiente — se agrega cuando esté el mapa correspondiente.
+};
+
+function renderMap(key) {
+  const data = mapsData[key];
+  if (!data) {
+    mapFrameInner.innerHTML = `<div class="map-pending">🚧 MAPA DE "${key.toUpperCase()}" — PRÓXIMAMENTE</div>`;
+    return;
+  }
+  let markersHtml = '';
+  data.markers.forEach(m => {
+    markersHtml += `
+      <div class="map-marker-wrap" style="left:${m.x}%; top:${m.y}%;">
+        <span class="map-marker-ring"></span>
+        <span class="map-marker-dot"></span>
+      </div>
+      <div class="map-marker-label" style="left:${m.x}%; top:${m.y}%;">${m.label}</div>`;
+  });
+  mapFrameInner.innerHTML = `
+    <span class="map-corner map-corner-tl"></span>
+    <span class="map-corner map-corner-tr"></span>
+    <span class="map-corner map-corner-bl"></span>
+    <span class="map-corner map-corner-br"></span>
+    <div class="map-hud-tag">${data.tag}</div>
+    <img src="${data.img}" alt="Mapa">
+    ${markersHtml}`;
+}
+
+function openMap(key) {
+  renderMap(key);
+  academiaSchedule.style.display = 'none';
+  academiaMap.classList.add('active');
+}
+
+document.querySelectorAll('.turno-card[data-map]').forEach(card => {
+  card.addEventListener('click', () => openMap(card.dataset.map));
+});
+
+closeMapBtn.addEventListener('click', () => {
+  academiaMap.classList.remove('active');
+  academiaSchedule.style.display = '';
+});
+
+/* ---- Lista de asistencias (iframe) ---- */
+const academiaAttendance = document.getElementById('academiaAttendance');
+const closeAttendanceBtn = document.getElementById('closeAttendanceBtn');
+const attendanceIframe = document.querySelector('.attendance-iframe');
+const academiaTwoCol = document.querySelector('.academia-two-col');
+
+function ocultarPanelesAcademia() {
+  academiaSchedule.style.display = 'none';
+  if (academiaTwoCol) academiaTwoCol.style.display = 'none';
+}
+function mostrarGridAcademia() {
+  academiaSchedule.style.display = '';
+  if (academiaTwoCol) academiaTwoCol.style.display = '';
+}
+
+function openAttendance() {
+  academiaEvaluaciones.classList.remove('active');
+  ocultarPanelesAcademia();
+  academiaAttendance.classList.add('active');
+}
+
+document.querySelectorAll('.turno-card[data-action="asistencias"]').forEach(card => {
+  card.addEventListener('click', openAttendance);
+});
+
+closeAttendanceBtn.addEventListener('click', () => {
+  academiaAttendance.classList.remove('active');
+  mostrarGridAcademia();
+});
+
+/* ---- Evaluaciones por rango (iframe con pestañas Tenientes/Capitanes) ---- */
+const academiaEvaluaciones = document.getElementById('academiaEvaluaciones');
+const closeEvaluacionesBtn = document.getElementById('closeEvaluacionesBtn');
+const evaluacionesIframe = document.querySelector('.evaluaciones-iframe');
+const evalTabs = document.querySelectorAll('.eval-tab');
+
+function openEvaluaciones() {
+  academiaAttendance.classList.remove('active');
+  ocultarPanelesAcademia();
+  academiaEvaluaciones.classList.add('active');
+}
+
+document.querySelectorAll('.turno-card[data-action="evaluaciones"]').forEach(card => {
+  card.addEventListener('click', openEvaluaciones);
+});
+
+closeEvaluacionesBtn.addEventListener('click', () => {
+  academiaEvaluaciones.classList.remove('active');
+  mostrarGridAcademia();
+});
+
+evalTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.classList.contains('active')) return;
+    evalTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    evaluacionesIframe.src = tab.dataset.rango;
+  });
+});
+
+// Los iframes de asistencias.html / tenientes.html / capitanes.html avisan su
+// altura real (incluyendo popups abiertos) vía postMessage; acá la aplicamos
+// para que no haya doble scroll ni recortes, sea cual sea el que esté activo.
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  let iframeOrigen = null;
+  if (attendanceIframe && e.source === attendanceIframe.contentWindow) iframeOrigen = attendanceIframe;
+  else if (evaluacionesIframe && e.source === evaluacionesIframe.contentWindow) iframeOrigen = evaluacionesIframe;
+  if (!iframeOrigen) return;
+
+  if (e.data.tipo === 'asistencias-alto') {
+    iframeOrigen.style.height = Math.max(320, e.data.alto) + 'px';
+  }
+
+  if (e.data.tipo === 'asistencias-centrar') {
+    const rect = iframeOrigen.getBoundingClientRect();
+    const centroIframe = window.scrollY + rect.top + rect.height / 2;
+    const destino = Math.max(0, centroIframe - window.innerHeight / 2);
+    window.scrollTo({ top: destino, behavior: 'smooth' });
+  }
+});
+</script>
+
+<div class="siren-glow-left"></div>
+<div class="siren-glow-right"></div>
+<footer class="pd-footer">
+  <div class="siren-strip"></div>
+  <p>Herramienta de referencia no oficial, hecha por y para jugadores del Departamento de Policía de Laguna (OneState RP).</p>
+  <p>No afiliado ni respaldado oficialmente por ChillGaming, Ltd.</p>
+  <p>Las imágenes y recursos visuales utilizados pertenecen a sus respectivos propietarios y se muestran únicamente con fines informativos y comunitarios.</p>
+  <p>Última actualización: Julio 2026</p>
+</footer>
+
+</body>
+</html>
