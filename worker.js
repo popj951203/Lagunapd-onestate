@@ -203,7 +203,16 @@ async function manejarEscalafon(request, env, payload, recurso) {
   if (payload.agregarIntento && payload.agregarIntento.nombre) {
     const nombreLimpio = String(payload.agregarIntento.nombre).trim();
     const datos = limpiarIntentoEscalafon(nombreLimpio, payload.agregarIntento);
-    const transicion = `Evaluación de ${RANGO_LABEL[recurso] || recurso}`;
+    const soloRegistrar = payload.agregarIntento.soloRegistrar === true;
+    const siguienteRecurso = config.siguiente;
+
+    // Si es solo registro (llegó del rango anterior, o se está reintentando
+    // ESTE rango), la evaluación es para el rango de ESTA lista. Si es una
+    // evaluación de ascenso, es para el rango SIGUIENTE (evaluar a un
+    // Teniente es "Evaluación de Capitán"; a un Capitán, "Evaluación de
+    // Mayor"), aunque esa lista todavía no exista armada.
+    const rangoEvaluado = soloRegistrar ? recurso : (siguienteRecurso || recurso);
+    const transicion = `Evaluación de ${RANGO_LABEL[rangoEvaluado] || rangoEvaluado}`;
 
     const idx = lista.findIndex((p) => p.nombre.toLowerCase() === nombreLimpio.toLowerCase());
     const historialPrevio = idx !== -1 && Array.isArray(lista[idx].historial) ? lista[idx].historial : [];
@@ -227,7 +236,7 @@ async function manejarEscalafon(request, env, payload, recurso) {
     // EN ESTA lista (ingreso desde la lista anterior, o reintento de la
     // evaluación de este mismo rango). No ascciende de largo hacia el
     // siguiente escalón.
-    if (payload.agregarIntento.soloRegistrar === true) {
+    if (soloRegistrar) {
       if (idx !== -1) lista[idx] = personaActualizada; else lista.push(personaActualizada);
       const estado = await guardarLista(env, config.kvKey, recurso, lista);
       return json({ [recurso]: estado[recurso], ultimaActualizacion: estado.ultimaActualizacion });
@@ -235,8 +244,9 @@ async function manejarEscalafon(request, env, payload, recurso) {
 
     // Evaluación para el SIGUIENTE rango (por ejemplo, evaluar a un Teniente
     // para Capitán): siempre avanza, apruebe o repruebe, y ese resultado
-    // queda tal cual como estado del rango en la lista destino.
-    const siguienteRecurso = config.siguiente;
+    // queda tal cual como estado del rango en la lista destino. Si ese
+    // escalón todavía no está armado (por ahora: Mayores), el registro se
+    // queda acá con el intento igual sumado al historial.
     const siguienteConfig = siguienteRecurso ? ESCALAFON_CONFIG[siguienteRecurso] : null;
 
     if (siguienteConfig) {

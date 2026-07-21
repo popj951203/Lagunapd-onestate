@@ -842,7 +842,7 @@ h1 {
 .attendance-iframe {
   display: block;
   width: 100%;
-  height: 840px; /* fallback inicial hasta que llegue el primer postMessage con la altura real */
+  height: 640px; /* fallback inicial hasta que llegue el primer postMessage con la altura real */
   border: none;
   background: #0f1115;
   transition: height 0.15s ease;
@@ -850,7 +850,7 @@ h1 {
 .evaluaciones-iframe {
   display: block;
   width: 100%;
-  height: 840px; /* fallback inicial hasta que llegue el primer postMessage con la altura real */
+  height: 640px; /* fallback inicial hasta que llegue el primer postMessage con la altura real */
   border: none;
   background: #0f1115;
   transition: height 0.15s ease;
@@ -1348,8 +1348,6 @@ const infracciones = [
 ];
 
 const macrosGenerales = [
-["PATRULLAJE", "/flobby SOLICITO PERMISO PARA SUBIR A PISO 2 A PATRULLAJE CALLEJERO."],
-["MAXIMO RESPETO", "/me MI MÁXIMO RESPETO SR(A) [ETIQUETA DE RANGO]. ¡SU NOMBRE, PRESENTÁNDOSE!"],
 ["TASER", "/do ¡TASER! ¡TASER! ¡TASER! DESPLIEGA UN TASER EN UN SOSPECHOSO."],
 ["TASER VEHICULO", "/do ¡TASER! ¡TASER! ¡TASER! ROMPE LA VENTANA Y TASER A UN CIVIL, LUEGO LO SACA DEL VEHÍCULO."],
 ["DISPARAR", "/do DISPARAR AL SOSPECHOSO ARMADO / VEHÍCULO PARA PROTEGER A LOS CIUDADANOS, COMPAÑEROS OFICIALES Y A SÍ MISMO."],
@@ -1358,6 +1356,7 @@ const macrosGenerales = [
 ["BALIZA", "/me POR NO SEGUIR MIS ÓRDENES, LE HE COLOCADO UN DISPOSITIVO DE RASTREO."],
 ["DOCUMENTOS", "/me CIUDADANO PORFAVOR PERMITAME SUS DOCUMENTOS. "],
 ["PRESENTACION", "/me HOLA, SOY EL (RANGO AQUÍ) (TU NOMBRE AQUÍ). SOY UN OFICIAL DE LA POLICÍA DEL ESTADO DE LA COSTA OESTE DE LAGUNA. ¿CÓMO LE PUEDO AYUDAR?"],
+["MAXIMO RESPETO", "/me MI MÁXIMO RESPETO SR(A) [ETIQUETA DE RANGO]. ¡SU NOMBRE, PRESENTÁNDOSE!"],
 ["REGISTRAR DOCUMENTOS", "/do REGISTRANDO LOS DOCUMENTOS AL SOSPECHOSO."],
 ["PUEDE RETIRARSE", "/me SOSPECHOSO LIMPIO. PUEDE RETIRARSE."],
 ["DETENCION", "/me ¡ESTÁ SIENDO DETENIDO, NO ARRESTADO! ¡POR FAVOR, SÍGUEME!"],
@@ -1950,6 +1949,7 @@ function openMap(key) {
   renderMap(key);
   academiaSchedule.style.display = 'none';
   academiaMap.classList.add('active');
+  if (academiaBg) academiaBg.style.display = 'none';
 }
 
 document.querySelectorAll('.turno-card[data-map]').forEach(card => {
@@ -1959,6 +1959,7 @@ document.querySelectorAll('.turno-card[data-map]').forEach(card => {
 closeMapBtn.addEventListener('click', () => {
   academiaMap.classList.remove('active');
   academiaSchedule.style.display = '';
+  if (academiaBg) academiaBg.style.display = '';
 });
 
 /* ---- Lista de asistencias (iframe) ---- */
@@ -1970,10 +1971,16 @@ const academiaTwoCol = document.querySelector('.academia-two-col');
 function ocultarPanelesAcademia() {
   academiaSchedule.style.display = 'none';
   if (academiaTwoCol) academiaTwoCol.style.display = 'none';
+  // Se oculta el sello de fondo de Academia acá: cada lista (asistencias,
+  // tenientes, capitanes) ya trae su propio sello de fondo, y si se dejan
+  // los dos activos a la vez se superponen y queda sucio, sobre todo
+  // cuando la lista tiene pocas filas y no llega a cubrirlo del todo.
+  if (academiaBg) academiaBg.style.display = 'none';
 }
 function mostrarGridAcademia() {
   academiaSchedule.style.display = '';
   if (academiaTwoCol) academiaTwoCol.style.display = '';
+  if (academiaBg) academiaBg.style.display = '';
 }
 
 function openAttendance() {
