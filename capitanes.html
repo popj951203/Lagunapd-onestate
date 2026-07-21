@@ -141,6 +141,7 @@
     display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100;
   }
   .modal-overlay.hidden { display: none; }
+  #modalCodigo { z-index: 110; }
   .modal-box {
     background: var(--card); border: 1px solid var(--border); padding: 20px; width: 100%; max-width: 360px;
     clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
@@ -485,7 +486,14 @@ function rolAlcanza(rolActual, rolRequerido) {
 const NOMBRES_EVALUADORES = Object.values(CODIGOS)
   .filter(u => rolAlcanza(u.rol, 'evaluador'))
   .map(u => u.nombre);
-function opcionesEvaluador(seleccionado) {
+// restringir = true: si quien se identificó no es administrador, solo puede
+// elegir su propio nombre (no puede atribuirle el registro a otra persona).
+// Los administradores siempre ven la lista completa (por ejemplo, al editar
+// el registro de otra persona en modo edición).
+function opcionesEvaluador(seleccionado, restringir) {
+  if (restringir && evaluadorActualRol && evaluadorActualRol !== 'administrador') {
+    return `<option value="${escapeAttr(evaluadorActual)}" selected>${escapeHtml(evaluadorActual)}</option>`;
+  }
   return NOMBRES_EVALUADORES.map(n => `<option value="${n}"${n === seleccionado ? ' selected' : ''}>${n}</option>`).join('');
 }
 
@@ -730,7 +738,7 @@ function abrirModalEditar(nombre) {
   btnEditarAprobado.classList.toggle('active', editarResultado === 'aprobado');
   btnEditarReprobado.classList.toggle('active', editarResultado === 'reprobado');
   inputEditarFecha.value = (p.fecha && p.fecha !== '—') ? p.fecha : hoyISO();
-  inputEditarEvaluador.innerHTML = opcionesEvaluador(p.evaluador);
+  inputEditarEvaluador.innerHTML = opcionesEvaluador(p.evaluador, false);
   inputEditarObservaciones.value = p.observaciones || '';
   editarError.textContent = '';
   modalEditar.classList.remove('hidden');
@@ -843,6 +851,7 @@ const modalCodigo = document.getElementById('modalCodigo');
 const inputCodigo = document.getElementById('inputCodigo');
 const codigoError = document.getElementById('codigoError');
 let evaluadorActual = null;
+let evaluadorActualRol = null;
 let accionPendienteCodigo = null; // 'bulk' | 'intento' | 'promo'
 
 function abrirModalCodigo() {
@@ -881,6 +890,7 @@ function validarCodigo() {
     return;
   }
   evaluadorActual = usuario.nombre;
+  evaluadorActualRol = usuario.rol;
   cerrarModalCodigo();
   if (accionPendienteCodigo === 'bulk') {
     abrirModalRegistro();
@@ -916,7 +926,7 @@ function abrirModalIntento() {
   btnIntentoAprobado.classList.add('active');
   btnIntentoReprobado.classList.remove('active');
   intentoFecha.value = hoyISO();
-  intentoEvaluador.innerHTML = opcionesEvaluador(evaluadorActual);
+  intentoEvaluador.innerHTML = opcionesEvaluador(evaluadorActual, true);
   intentoObservaciones.value = '';
   intentoError.textContent = '';
   modalIntento.classList.remove('hidden');
@@ -1008,7 +1018,7 @@ function abrirModalPromo() {
   btnPromoAprobado.classList.add('active');
   btnPromoReprobado.classList.remove('active');
   promoFecha.value = hoyISO();
-  promoEvaluador.innerHTML = opcionesEvaluador(evaluadorActual);
+  promoEvaluador.innerHTML = opcionesEvaluador(evaluadorActual, true);
   promoObservaciones.value = '';
   promoError.textContent = '';
   modalPromo.classList.remove('hidden');
@@ -1100,7 +1110,7 @@ function poblarListaNombres() {
 function abrirModalRegistro() {
   registradorInfo.innerHTML = `Evaluando como: <b>${escapeHtml(evaluadorActual)}</b>`;
   inputFecha.value = hoyISO();
-  inputEvaluador.innerHTML = opcionesEvaluador(evaluadorActual);
+  inputEvaluador.innerHTML = opcionesEvaluador(evaluadorActual, false);
   inputNombre.value = '';
   nombreError.textContent = '';
   resultadoSeleccionado = 'aprobado';

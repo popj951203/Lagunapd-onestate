@@ -597,15 +597,7 @@
       </div>
       <div class="modal-field">
         <label>Instructor</label>
-        <select id="inputInstructor">
-          <option value="Lilith Black">Lilith Black</option>
-          <option value="Drak Reem">Drak Reem</option>
-          <option value="Goliat Crawley">Goliat Crawley</option>
-          <option value="Sr Chakalito">Sr Chakalito</option>
-          <option value="Axo Velasco">Axo Velasco</option>
-          <option value="Eliel Martinez">Eliel Martinez</option>
-          <option value="Joyce Blaxland">Joyce Blaxland</option>
-        </select>
+        <select id="inputInstructor"></select>
       </div>
     </div>
 
@@ -678,15 +670,7 @@
       </div>
       <div class="modal-field">
         <label>Instructor</label>
-        <select id="claseNuevaInstructor">
-          <option value="Lilith Black">Lilith Black</option>
-          <option value="Drak Reem">Drak Reem</option>
-          <option value="Goliat Crawley">Goliat Crawley</option>
-          <option value="Sr Chakalito">Sr Chakalito</option>
-          <option value="Axo Velasco">Axo Velasco</option>
-          <option value="Eliel Martinez">Eliel Martinez</option>
-          <option value="Joyce Blaxland">Joyce Blaxland</option>
-        </select>
+        <select id="claseNuevaInstructor"></select>
       </div>
     </div>
     <div class="modal-row" id="clasesAgregarRow2">
@@ -765,15 +749,7 @@
     <div class="modal-row">
       <div class="modal-field flex1">
         <label>Evaluador</label>
-        <select id="evaluacionEvaluador">
-          <option value="Lilith Black">Lilith Black</option>
-          <option value="Drak Reem">Drak Reem</option>
-          <option value="Goliat Crawley">Goliat Crawley</option>
-          <option value="Sr Chakalito">Sr Chakalito</option>
-          <option value="Axo Velasco">Axo Velasco</option>
-          <option value="Eliel Martinez">Eliel Martinez</option>
-          <option value="Joyce Blaxland">Joyce Blaxland</option>
-        </select>
+        <select id="evaluacionEvaluador"></select>
       </div>
     </div>
     <div class="modal-row">
@@ -814,6 +790,19 @@ const CODIGOS = {
 const NIVELES_ROL = { instructor: 1, evaluador: 2, administrador: 3 };
 function rolAlcanza(rolActual, rolRequerido) {
   return (NIVELES_ROL[rolActual] || 0) >= (NIVELES_ROL[rolRequerido] || 99);
+}
+
+const NOMBRES_EVALUADORES = Object.values(CODIGOS)
+  .filter(u => rolAlcanza(u.rol, 'evaluador'))
+  .map(u => u.nombre);
+// restringir = true: si quien se identificó no es administrador, solo puede
+// elegir su propio nombre como evaluador (no puede atribuirle la evaluación
+// a otra persona). Los administradores siempre ven la lista completa.
+function opcionesEvaluadorAsistencia(seleccionado, restringir) {
+  if (restringir && evaluadorIdentificadoRol && evaluadorIdentificadoRol !== 'administrador') {
+    return `<option value="${escapeAttr(evaluadorIdentificado)}" selected>${escapeHtml(evaluadorIdentificado)}</option>`;
+  }
+  return NOMBRES_EVALUADORES.map(n => `<option value="${escapeAttr(n)}" ${n === seleccionado ? 'selected' : ''}>${n}</option>`).join('');
 }
 
 const STORAGE_KEY = 'wspd_asistencias_v1'; // ya no se usa para guardar, solo como respaldo local si el servidor falla
@@ -950,6 +939,7 @@ const inputCodigo = document.getElementById('inputCodigo');
 const codigoError = document.getElementById('codigoError');
 
 let registradorActual = null;
+let registradorActualRol = null;
 
 function abrirModalCodigo() {
   inputCodigo.value = '';
@@ -976,6 +966,7 @@ function validarCodigo() {
     return;
   }
   registradorActual = usuario.nombre;
+  registradorActualRol = usuario.rol;
   cerrarModalCodigo();
   abrirModalRegistro();
 }
@@ -1020,7 +1011,7 @@ function abrirModalRegistro() {
   registradorInfo.innerHTML = `Registrando como: <b>${escapeHtml(registradorActual)}</b>`;
   inputFecha.value = hoyISO();
   inputTurno.selectedIndex = 0;
-  inputInstructor.selectedIndex = 0;
+  inputInstructor.innerHTML = opcionesInstructor(registradorActual, true);
   inputNombre.value = '';
   nombreError.textContent = '';
   tipoSeleccionado = 'verde';
@@ -1476,7 +1467,14 @@ const INSTRUCTORES_CLASE = ["Lilith Black", "Drak Reem", "Goliat Crawley", "Sr C
 function opcionesTurno(seleccionado) {
   return TURNOS_CLASE.map(t => `<option value="${escapeAttr(t)}" ${t === seleccionado ? 'selected' : ''}>${t}</option>`).join('');
 }
-function opcionesInstructor(seleccionado) {
+// restringir = true: si quien registra no es administrador, solo puede
+// elegir su propio nombre como instructor (no puede atribuirle la clase a
+// otra persona). Los administradores (por ejemplo, en el modo edición)
+// siempre ven la lista completa.
+function opcionesInstructor(seleccionado, restringir) {
+  if (restringir && registradorActualRol && registradorActualRol !== 'administrador') {
+    return `<option value="${escapeAttr(registradorActual)}" selected>${escapeHtml(registradorActual)}</option>`;
+  }
   return INSTRUCTORES_CLASE.map(n => `<option value="${escapeAttr(n)}" ${n === seleccionado ? 'selected' : ''}>${n}</option>`).join('');
 }
 
@@ -1522,7 +1520,7 @@ function renderClasesLista(editable) {
       ? `<select class="clase-campo-turno" data-idx="${i}">${opcionesTurno(r.turno)}</select>`
       : escapeHtml(r.turno || '—');
     const instructorCell = editable
-      ? `<select class="clase-campo-instructor" data-idx="${i}">${opcionesInstructor(r.instructor)}</select>`
+      ? `<select class="clase-campo-instructor" data-idx="${i}">${opcionesInstructor(r.instructor, false)}</select>`
       : escapeHtml(r.instructor || '—');
     return `<tr>
       <td>${fechaCell}</td>
@@ -1555,7 +1553,7 @@ function abrirModalEditar() {
     inputEditarNombre.value = personaEditando;
     claseNuevaFecha.value = hoyISO();
     claseNuevaTurno.selectedIndex = 0;
-    claseNuevaInstructor.selectedIndex = 0;
+    claseNuevaInstructor.innerHTML = opcionesInstructor(null, false);
     claseNuevoTipo = 'verde';
     document.getElementById('claseNuevaBtnVerde').classList.add('active');
     document.getElementById('claseNuevaBtnAmarillo').classList.remove('active');
@@ -1653,6 +1651,8 @@ const btnResultadoAprobado = document.getElementById('btnResultadoAprobado');
 const btnResultadoReprobado = document.getElementById('btnResultadoReprobado');
 const btnGuardarEvaluacion = document.getElementById('btnGuardarEvaluacion');
 let resultadoEvaluacion = 'aprobado';
+let evaluadorIdentificado = null;
+let evaluadorIdentificadoRol = null;
 
 btnResultadoAprobado.addEventListener('click', () => {
   resultadoEvaluacion = 'aprobado';
@@ -1670,7 +1670,7 @@ function abrirModalEvaluacion() {
   resultadoEvaluacion = 'aprobado';
   btnResultadoAprobado.classList.add('active');
   btnResultadoReprobado.classList.remove('active');
-  evaluacionEvaluador.selectedIndex = 0;
+  evaluacionEvaluador.innerHTML = opcionesEvaluadorAsistencia(evaluadorIdentificado, true);
   evaluacionObservaciones.value = '';
   evaluacionError.textContent = '';
   modalEvaluacion.classList.remove('hidden');
@@ -1705,6 +1705,8 @@ function validarCodigoEvaluar() {
     codigoEvaluarError.textContent = 'Ese código no tiene permisos para evaluar.';
     return;
   }
+  evaluadorIdentificado = usuario.nombre;
+  evaluadorIdentificadoRol = usuario.rol;
   cerrarModalCodigoEvaluar();
   abrirModalEvaluacion();
 }
@@ -1719,6 +1721,8 @@ modalCodigoEvaluar.addEventListener('click', e => { if (e.target === modalCodigo
 if (btnEvaluarVista) {
   btnEvaluarVista.addEventListener('click', () => {
     if (modoEdicionActivo) {
+      evaluadorIdentificado = editorActual;
+      evaluadorIdentificadoRol = 'administrador';
       abrirModalEvaluacion();
     } else {
       abrirModalCodigoEvaluar();
@@ -1726,7 +1730,11 @@ if (btnEvaluarVista) {
   });
 }
 
-document.getElementById('btnAbrirEvaluacion').addEventListener('click', abrirModalEvaluacion);
+document.getElementById('btnAbrirEvaluacion').addEventListener('click', () => {
+  evaluadorIdentificado = editorActual;
+  evaluadorIdentificadoRol = 'administrador';
+  abrirModalEvaluacion();
+});
 document.getElementById('btnCancelarEvaluacion').addEventListener('click', cerrarModalEvaluacion);
 modalEvaluacion.addEventListener('click', e => { if (e.target === modalEvaluacion) cerrarModalEvaluacion(); });
 
