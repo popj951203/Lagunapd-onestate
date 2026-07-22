@@ -756,29 +756,11 @@
 
 <div id="customTooltip"></div>
 
+<script src="codigos.js"></script>
 <script>
-// -------------------- códigos con rol --------------------
-// instructor: puede registrar asistencias (agregar clases) | evaluador: lo
-// mismo que instructor, además puede evaluar en Tenientes/Capitanes |
-// administrador: puede además editar/eliminar registros de asistencia acá y
-// enviar a evaluación. Mismo sistema que tenientes.html / capitanes.html.
-// Cada persona tiene su propio código individual (ya no se comparten entre
-// varias personas), terminado en su inicial en minúscula, para poder
-// identificar en los registros quién evaluó o quién agregó cada asistencia.
-const CODIGOS = {
-  "1203d": { nombre: "Drak Reem", rol: "administrador" },
-  "5678l": { nombre: "Lilith Velarys", rol: "administrador" },
-  "1231l": { nombre: "Lilith Black", rol: "instructor" },
-  "1232c": { nombre: "Sr Chakalito", rol: "instructor" },
-  "1233a": { nombre: "Axo Velasco", rol: "instructor" },
-  "1234j": { nombre: "Joyce Blaxland", rol: "instructor" },
-  "4321e": { nombre: "Eliel Martinez", rol: "evaluador" },
-  "4322g": { nombre: "Goliat Crawley", rol: "evaluador" },
-};
-const NIVELES_ROL = { instructor: 1, evaluador: 2, administrador: 3 };
-function rolAlcanza(rolActual, rolRequerido) {
-  return (NIVELES_ROL[rolActual] || 0) >= (NIVELES_ROL[rolRequerido] || 99);
-}
+// Los códigos de acceso (CODIGOS, NIVELES_ROL, rolAlcanza, NOMBRES_TODOS)
+// se cargan desde codigos.js — ese es el único lugar donde hay que
+// editarlos, se comparte con tenientes.html / capitanes.html / index.html.
 
 // La clase de Procedimientos es especial: cuenta para las 6 clases, pero es
 // obligatoria (sin ella no alcanza aunque haya 6 o más puntos) y solo la
@@ -1287,11 +1269,13 @@ function generarReporte() {
   const haceUnaSemana = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const completaron = [];
+  const faltaProcedimientos = [];
   const inactivos = [];
   const resto = [];
 
   asistencias.forEach(p => {
     if (cumpleRequisitos(p)) { completaron.push(p); return; }
+    if (puntos(p) >= 5 && !tieneProcedimientos(p)) { faltaProcedimientos.push(p); return; }
     const ultima = ultimaClaseDe(p);
     if (ultima && ultima < haceUnaSemana) { inactivos.push({ persona: p, ultima }); return; }
     resto.push(p);
@@ -1299,6 +1283,7 @@ function generarReporte() {
 
   const alfa = (a, b) => a.nombre.localeCompare(b.nombre, 'es');
   completaron.sort(alfa);
+  faltaProcedimientos.sort((a, b) => puntos(b) - puntos(a) || alfa(a, b));
   inactivos.sort((a, b) => a.ultima - b.ultima || alfa(a.persona, b.persona));
   resto.sort((a, b) => puntos(b) - puntos(a) || alfa(a, b));
 
@@ -1313,6 +1298,14 @@ function generarReporte() {
   lineas.push(...(completaron.length
     ? completaron.map((p, i) => `${i + 1}. ${p.nombre} — ${fmtPuntos(puntos(p))} clases`)
     : ['(nadie todavía)']));
+  lineas.push('');
+
+  lineas.push('====================================');
+  lineas.push(`TIENEN 5 CLASES O MÁS PERO LES FALTA PROCEDIMIENTOS (${faltaProcedimientos.length})`);
+  lineas.push('====================================');
+  lineas.push(...(faltaProcedimientos.length
+    ? faltaProcedimientos.map((p, i) => `${i + 1}. ${p.nombre} — ${fmtPuntos(puntos(p))} clases (falta Procedimientos)`)
+    : ['(nadie en esta situación)']));
   lineas.push('');
 
   lineas.push('====================================');
@@ -1459,7 +1452,7 @@ let clasesLocal = []; // copia editable de persona.registros mientras el modal e
 let claseNuevoTipo = 'verde';
 
 const TURNOS_CLASE = ["Primera Clase", "Segunda Clase", "Tercera Clase", "Cuarta Clase", "Quinta Clase", TURNO_PROCEDIMIENTOS];
-const INSTRUCTORES_CLASE = ["Lilith Black", "Drak Reem", "Goliat Crawley", "Sr Chakalito", "Axo Velasco", "Eliel Martinez", "Joyce Blaxland"];
+const INSTRUCTORES_CLASE = NOMBRES_TODOS; // viene de codigos.js — cualquiera de CODIGOS puede figurar como quien dictó una clase
 
 // restringir = true: si quien registra no llega a evaluador (es instructor
 // común), no puede elegir "Procedimientos" — esa clase solo la registran
