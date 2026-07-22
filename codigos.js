@@ -19,12 +19,12 @@
 const CODIGOS = {
   "1203d": { nombre: "Drak Reem", rol: "administrador" },
   "5678l": { nombre: "Lilith Velarys", rol: "administrador" },
-  "1231l": { nombre: "Lilith Black", rol: "instructor" },
   "1232c": { nombre: "Sr Chakalito", rol: "instructor" },
   "1233a": { nombre: "Axo Velasco", rol: "instructor" },
   "1234j": { nombre: "Joyce Blaxland", rol: "instructor" },
-  "4321e": { nombre: "Eliel Martinez", rol: "evaluador" },
-  "4322g": { nombre: "Goliat Crawley", rol: "evaluador" },
+  "1235m": { nombre: "Moises Medez", rol: "instructor" },
+  "4321e": { nombre: "Eliel Martinez", rol: "instructor" },
+  "4322g": { nombre: "Goliat Crawley", rol: "instructor" },
 };
 
 // No hace falta tocar nada de acá para abajo.
