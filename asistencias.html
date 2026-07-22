@@ -780,7 +780,6 @@
 const CODIGOS = {
   "1203d": { nombre: "Drak Reem", rol: "administrador" },
   "5678l": { nombre: "Lilith Velarys", rol: "administrador" },
-  "1231l": { nombre: "Lilith Black", rol: "instructor" },
   "1232c": { nombre: "Sr Chakalito", rol: "instructor" },
   "1233a": { nombre: "Axo Velasco", rol: "instructor" },
   "1234j": { nombre: "Joyce Blaxland", rol: "instructor" },
@@ -1462,7 +1461,7 @@ let clasesLocal = []; // copia editable de persona.registros mientras el modal e
 let claseNuevoTipo = 'verde';
 
 const TURNOS_CLASE = ["Primera Clase", "Segunda Clase", "Tercera Clase", "Cuarta Clase", "Quinta Clase"];
-const INSTRUCTORES_CLASE = ["Lilith Black", "Drak Reem", "Goliat Crawley", "Sr Chakalito", "Axo Velasco", "Eliel Martinez", "Joyce Blaxland"];
+const INSTRUCTORES_CLASE = ["Lilith Velarys", "Drak Reem", "Goliat Crawley", "Sr Chakalito", "Axo Velasco", "Eliel Martinez", "Joyce Blaxland"];
 
 function opcionesTurno(seleccionado) {
   return TURNOS_CLASE.map(t => `<option value="${escapeAttr(t)}" ${t === seleccionado ? 'selected' : ''}>${t}</option>`).join('');
